@@ -154,8 +154,8 @@ router.delete("/delete/:isbn", async (req, res) => {
 router.get("/get-all", async (req, res) => {
     try {
         const books = await Book.find();
-        if (!books) {
-            return res.status(422).json({ "message": "No book registered!" });
+        if (!books[0]) {
+            return res.status(422).json({ "message": "No books registered!" });
         }
         res.status(200).json(books);
     } catch (error) {
