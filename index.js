@@ -24,6 +24,8 @@ const bookRoutes = require("./routes/bookRoutes");
 app.use("/book", bookRoutes);
 const userRoutes = require("./routes/userRoutes");
 app.use("/user", userRoutes);
+const loanRoutes = require("./routes/loanRoutes");
+app.use("/loan", loanRoutes);
 
 
 

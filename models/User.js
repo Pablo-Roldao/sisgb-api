@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema(
         addres: String,
         email: String,
         password: String,
-        isFunctionary: Boolean
+        isFunctionary: Boolean,
+        currentLoansQuantity: Number
     },
     {
         versionKey: false

@@ -3,14 +3,20 @@ const router = require("express").Router();
 const User = require("../models/User");
 
 router.use(
-    express.urlencoded({
-        extended: true
-    })
+    express.urlencoded(
+        {
+            extended: true
+        }
+    )
 );
-router.use(express.json());
+router.use(
+    express.json()
+);
 
 router.post("/register", async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
+
+    currentLoansQuantity = 0;
 
     if (!name) {
         return res.status(422).json({ "message": "The user must contains a name!" });
@@ -50,7 +56,8 @@ router.post("/register", async (req, res) => {
         addres,
         email,
         password,
-        isFunctionary
+        isFunctionary,
+        currentLoansQuantity
     });
 
     try {
