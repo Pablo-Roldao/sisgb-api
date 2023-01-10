@@ -3,6 +3,7 @@ const router = require("express").Router();
 const Loan = require("../models/Loan");
 const User = require("../models/User");
 const Book = require("../models/Book");
+const loan = require("../models/Loan");
 
 router.use(
     express.urlencoded(
@@ -61,6 +62,13 @@ router.post("/register", async (req, res) => {
 
     try {
         await Loan.create(loan);
+
+        bookInBD.state = "loaned";
+        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+
+        userInBD.currentLoansQuantity++;
+        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
+
         res.status(201).json({ "message": "Loan registered successfully!" })
     } catch (error) {
         console.log(error);
@@ -84,7 +92,7 @@ router.get("/get-all", async (req, res) => {
 
 router.delete("/delete/:id", async (req, res) => {
     const id = req.params.id;
-    const loanInBD = await User.findOne({ "_id": id });
+    const loanInBD = await Loan.findOne({ "_id": id });
     if (!loanInBD) {
         return res.status(422).json(
             {
@@ -94,7 +102,16 @@ router.delete("/delete/:id", async (req, res) => {
     }
 
     try {
-        await User.deleteOne({ "_id": id });
+        await Loan.deleteOne({ "_id": id });
+
+        const bookInBD = Book.findOne({ "isbn": loanInBD.bookIsbn });
+        bookInBD.state = "free";
+        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+
+        const userInBD = User.findOne({"cpf": loan.userCpf});
+        userInBD.currentLoansQuantity--;
+        await User.replaceOne({"cpf": userInBD.cpf}, userInBD);
+
         res.status(200).json({ "message": "Loan deleted successfully!" });
     } catch (error) {
         console.log(error);
