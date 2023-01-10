@@ -87,16 +87,52 @@ router.get("/get-by-isbn/:isbn", async (req, res) => {
     }
 });
 
+router.get("/get-all", async (req, res) => {
+    try {
+        const books = await Book.find();
+        if (!books[0]) {
+            return res.status(422).json({ "message": "No books registered!" });
+        }
+        res.status(200).json(books);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+});
+
 router.post("/update/:isbn", async (req, res) => {
     const oldIsbn = req.params.isbn;
     const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, state } = req.body;
 
-    if (!isbn || !title || !authors || !numberOfPages, !publisher || !publishDate || !edition || !genre || !description || !state) {
-        return res.status(422).json(
-            {
-                "message": "To update, te request must contains ISBN, titles, authors, number of pages, publisher, publish date, edition, genre, description and state!"
-            }
-        );
+    if (!isbn) {
+        return res.status(422).json({ "message": "The book must contains an ISBN!" });
+    }
+    if (!title) {
+        return res.status(422).json({ "message": "The book must contains a title!" });
+    }
+    if (!authors) {
+        return res.status(422).json({ "message": "The book must contains the authors!" });
+    }
+    if (!numberOfPages) {
+        return res.status(422).json({ "message": "The book must contains a number of pages!" });
+    }
+    if (!publisher) {
+        return res.status(422).json({ "message": "The book must contains a publisher!" });
+    }
+    if (!publishDate) {
+        return res.status(422).json({ "message": "The book must contains a publish date!" });
+    }
+    if (!edition) {
+        return res.status(422).json({ "message": "The book must contains an edition!" });
+    }
+    if (!genre) {
+        return res.status(422).json({ "message": "The book must contains a genre!" });
+    }
+    if (!description) {
+        return res.status(422).json({ "message": "The book must contains a description!" });
+    }
+    if (!state) {
+        return res.status(422).json({ "message": "The book must contains as state!" });
     }
 
     const bookInBD = await Book.findOne({ "isbn": oldIsbn });
@@ -145,19 +181,6 @@ router.delete("/delete/:isbn", async (req, res) => {
     try {
         await Book.deleteOne({ "isbn": isbn });
         res.status(200).json({ "message": "Book deleted successfully!" });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-});
-
-router.get("/get-all", async (req, res) => {
-    try {
-        const books = await Book.find();
-        if (!books[0]) {
-            return res.status(422).json({ "message": "No books registered!" });
-        }
-        res.status(200).json(books);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });

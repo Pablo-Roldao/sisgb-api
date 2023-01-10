@@ -18,25 +18,25 @@ router.post("/register", async (req, res) => {
 
     currentLoansQuantity = 0;
 
-    if (!name) {
+    if (name === undefined) {
         return res.status(422).json({ "message": "The user must contains a name!" });
     }
-    if (!cpf) {
+    if (cpf === undefined) {
         return res.status(422).json({ "message": "The user must contains a CPF!" });
     }
-    if (!birthDate) {
+    if (birthDate === undefined) {
         return res.status(422).json({ "message": "The user must contains a birth date!" });
     }
-    if (!addres) {
+    if (addres === undefined) {
         return res.status(422).json({ "message": "The user must contains an adress!" });
     }
-    if (!email) {
+    if (email === undefined) {
         return res.status(422).json({ "message": "The user must contains an email!" });
     }
-    if (!password) {
+    if (password === undefined) {
         return res.status(422).json({ "message": "The user must contains a password!" });
     }
-    if (!isFunctionary) {
+    if (isFunctionary === undefined) {
         return res.status(422).json({ "message": "The user must contains isFunctionary!" });
     }
 
@@ -83,9 +83,22 @@ router.get("/get-by-cpf/:cpf", async (req, res) => {
     }
 });
 
+router.get("/get-all", async (req, res) => {
+    try {
+        const users = await User.find();
+        if (!users[0]) {
+            return res.status(422).json({ "message": "No users registered!" });
+        }
+        res.status(200).json(users);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+});
+
 router.post("/update/:cpf", async (req, res) => {
     const oldCpf = req.params.cpf;
-    const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
+    const { name, cpf, birthDate, addres, email, password, isFunctionary, currentLoansQuantity } = req.body;
 
     if (!name) {
         return res.status(422).json({ "message": "The user must contains a name!" });
@@ -105,7 +118,7 @@ router.post("/update/:cpf", async (req, res) => {
     if (!password) {
         return res.status(422).json({ "message": "The user must contains a password!" });
     }
-    if (!isFunctionary) {
+    if (isFunctionary === undefined) {
         return res.status(422).json({ "message": "The user must contains isFunctionary!" });
     }
 
@@ -126,8 +139,8 @@ router.post("/update/:cpf", async (req, res) => {
         addres,
         email,
         password,
-        isFunctionary
-
+        isFunctionary,
+        currentLoansQuantity
     });
 
     try {
@@ -139,8 +152,8 @@ router.post("/update/:cpf", async (req, res) => {
     }
 });
 
-router.delete("/delete/:isbn", async (req, res) => {
-    const cpf = req.params.isbn;
+router.delete("/delete/:cpf", async (req, res) => {
+    const cpf = req.params.cpf;
     const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
         return res.status(422).json(
@@ -159,17 +172,5 @@ router.delete("/delete/:isbn", async (req, res) => {
     }
 });
 
-router.get("/get-all", async (req, res) => {
-    try {
-        const users = await User.find();
-        if (!users[0]) {
-            return res.status(422).json({ "message": "No users registered!" });
-        }
-        res.status(200).json(users);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-});
 
 module.exports = router;

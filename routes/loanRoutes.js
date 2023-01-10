@@ -33,36 +33,23 @@ router.post("/register", async (req, res) => {
 
     const userInBD = await User.findOne({ "cpf": userCpf });
     if (!userInBD) {
-        return res.status(422).json(
-            {
-                "message": "User not found!"
-            }
-        );
+        return res.status(422).json({ "message": "User not found!" });
     }
 
-    const bookInBD = await Book.findOne({"isbn": bookIsbn});
+    const bookInBD = await Book.findOne({ "isbn": bookIsbn });
     if (!bookInBD) {
-        return res.status(422).json(
-            {
-                "message": "Book not found!"
-            }
-        );
+        return res.status(422).json({ "message": "Book not found!" });
     }
 
     if (bookInBD.state === "loaned") {
-        return res.status(500).json(
-            {
-                "message": "Book loaned!"
-            }
-        );
+        return res.status(500).json({ "message": "Book loaned!" });
+    }
+    if (bookInBD.state === "reserved") {
+        return res.status(500).json({ "message": "Book reserved!" });
     }
 
     if (userInBD.currentLoansQuantity === 3) {
-        return res.status(500).json(
-            {
-                "message": "Current loans quantity fully!"
-            }
-        );
+        return res.status(500).json({ "message": "Current loans quantity fully!" });
     }
 
     const loan = new Loan({
@@ -89,6 +76,26 @@ router.get("/get-all", async (req, res) => {
             return res.status(422).json({ "message": "No loans registered!" });
         }
         res.status(200).json(loans);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+});
+
+router.delete("/delete/:id", async (req, res) => {
+    const id = req.params.id;
+    const loanInBD = await User.findOne({ "_id": id });
+    if (!loanInBD) {
+        return res.status(422).json(
+            {
+                "message": "The loan with this id was not found!"
+            }
+        )
+    }
+
+    try {
+        await User.deleteOne({ "_id": id });
+        res.status(200).json({ "message": "Loan deleted successfully!" });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
