@@ -27,6 +27,8 @@ app.use("/user", userRoutes);
 const loanRoutes = require("./routes/loanRoutes");
 app.use("/loan", loanRoutes);
 
+app.post("/login", userRoutes)
+
 
 
 mongoAtlasUri = process.env.MONGO_ATLAS_URI;

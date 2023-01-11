@@ -1,6 +1,11 @@
 const express = require("express");
 const router = require("express").Router();
 const User = require("../models/User");
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
+const login = require("../middleware/login")
+
+
 
 router.use(
     express.urlencoded(
@@ -13,7 +18,7 @@ router.use(
     express.json()
 );
 
-router.post("/register", async (req, res) => {
+router.post("/register", login.obrigatorio, async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
 
     currentLoansQuantity = 0;
@@ -48,6 +53,8 @@ router.post("/register", async (req, res) => {
             }
         );
     }
+    const salt = await bcrypt.genSalt(12)
+    const passwordHash = await bcrypt.hash(password, salt)
 
     const user = new User({
         name,
@@ -55,7 +62,7 @@ router.post("/register", async (req, res) => {
         birthDate,
         addres,
         email,
-        password,
+        password: passwordHash,
         isFunctionary,
         currentLoansQuantity
     });
@@ -69,7 +76,7 @@ router.post("/register", async (req, res) => {
     }
 });
 
-router.get("/get-by-cpf/:cpf", async (req, res) => {
+router.get("/get-by-cpf/:cpf", login.obrigatorio, async (req, res) => {
     const cpf = req.params.cpf;
     try {
         const user = await User.findOne({ "cpf": cpf });
@@ -83,7 +90,7 @@ router.get("/get-by-cpf/:cpf", async (req, res) => {
     }
 });
 
-router.get("/get-all", async (req, res) => {
+router.get("/get-all", login.opcional,async (req, res) => {
     try {
         const users = await User.find();
         if (!users[0]) {
@@ -96,7 +103,7 @@ router.get("/get-all", async (req, res) => {
     }
 });
 
-router.post("/update/:cpf", async (req, res) => {
+router.post("/update/:cpf", login.obrigatorio, async (req, res) => {
     const oldCpf = req.params.cpf;
     const { name, cpf, birthDate, addres, email, password, isFunctionary, currentLoansQuantity } = req.body;
 
@@ -152,7 +159,7 @@ router.post("/update/:cpf", async (req, res) => {
     }
 });
 
-router.delete("/delete/:cpf", async (req, res) => {
+router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
     const cpf = req.params.cpf;
     const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
@@ -171,6 +178,62 @@ router.delete("/delete/:cpf", async (req, res) => {
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
 });
+
+
+router.post("/login", async (req, res) => {
+
+    const {cpf, password} = req.body
+
+    if(!cpf){
+        return res.status(422).json({msg: "O cpf é obrigatorio"})
+    }
+
+    if(!password){
+        return res.status(422).json({msg: "A senha é obrigatorio"})
+
+    }
+
+   //verificar se o usuario existe
+
+const user = await User.findOne({cpf:cpf})
+
+if (!user) {
+    return res.status(404).json({ msg: "Usuario não encontrado"})
+} 
+
+//verificando a senha 
+
+const  checkPassword = bcrypt.compare(password, user.password)
+
+if(!checkPassword){
+    return res.status(422).json({msg: "Senha inválida"})
+}
+
+try {
+
+    const secret = process.env.SECRET
+
+    const token = jwt.sign(
+        {
+            id: user._id,
+            cpf: user.cpf
+            
+        },
+        secret,
+    )
+
+    res.status(200).json({msg: "Autentificação realizada com Sucesso", token})
+
+    
+} catch (error) {
+    console.log(err)
+
+    res.status(500).json({msg: error})
+    
+}
+
+
+})
 
 
 module.exports = router;
