@@ -66,7 +66,7 @@ router.post("/register", async (req, res) => {
         bookInBD.state = "loaned";
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
-        userInBD.currentLoansQuantity++;
+        userInBD.currentLoansQuantity = userInBD.currentLoansQuantity + 1;
         await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
 
         res.status(201).json({ "message": "Loan registered successfully!" })
@@ -100,15 +100,20 @@ router.delete("/delete/:id", async (req, res) => {
             }
         )
     }
+    console.log(loanInBD);
+
+    
+    const bookInBD = await Book.findOne({ "isbn": loanInBD.bookIsbn });
+    
+    const userInBD = await User.findOne({"cpf": loanInBD.userCpf});
 
     try {
         await Loan.deleteOne({ "_id": id });
-
-        const bookInBD = Book.findOne({ "isbn": loanInBD.bookIsbn });
         bookInBD.state = "free";
+
+
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
-        const userInBD = User.findOne({"cpf": loan.userCpf});
         userInBD.currentLoansQuantity--;
         await User.replaceOne({"cpf": userInBD.cpf}, userInBD);
 
