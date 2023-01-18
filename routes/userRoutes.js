@@ -90,7 +90,7 @@ router.get("/get-by-cpf/:cpf", login.obrigatorio, async (req, res) => {
     }
 });
 
-router.get("/get-all", login.opcional,async (req, res) => {
+router.get("/get-all", login.opcional, async (req, res) => {
     try {
         const users = await User.find();
         if (!users[0]) {
@@ -182,55 +182,45 @@ router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
 
 router.post("/login", async (req, res) => {
 
-    const {cpf, password} = req.body
+    const { cpf, password } = req.body;
 
-    if(!cpf){
-        return res.status(422).json({msg: "O cpf é obrigatorio"})
+    if (!cpf) {
+        return res.status(422).json({ msg: "The login must contains a CPF!" });
     }
 
-    if(!password){
-        return res.status(422).json({msg: "A senha é obrigatorio"})
-
+    if (!password) {
+        return res.status(422).json({ msg: "The login must containts a password!" });
     }
 
-   //verificar se o usuario existe
+    const userInBD = await User.findOne({ cpf: cpf });
 
-const user = await User.findOne({cpf:cpf})
+    if (!userInBD) {
+        return res.status(404).json({ "message": "User not found!" })
+    }
 
-if (!user) {
-    return res.status(404).json({ msg: "Usuario não encontrado"})
-} 
+    const checkPassword = bcrypt.compare(password, userInBD.password)
 
-//verificando a senha 
+    if (!checkPassword) {
+        return res.status(422).json({ "message": "Invalid password!" })
+    }
 
-const  checkPassword = bcrypt.compare(password, user.password)
+    try {
+        const secret = process.env.SECRET
 
-if(!checkPassword){
-    return res.status(422).json({msg: "Senha inválida"})
-}
+        const token = jwt.sign(
+            {
+                id: userInBD._id,
+                cpf: userInBD.cpf
 
-try {
+            },
+            secret,
+        );
 
-    const secret = process.env.SECRET
-
-    const token = jwt.sign(
-        {
-            id: user._id,
-            cpf: user.cpf
-            
-        },
-        secret,
-    )
-
-    res.status(200).json({msg: "Autentificação realizada com Sucesso", token})
-
-    
-} catch (error) {
-    console.log(err)
-
-    res.status(500).json({msg: error})
-    
-}
+        res.status(200).json({ "message": "Autentificação realizada com Sucesso", token });
+    } catch (error) {
+        console.log(err);
+        res.status(500).json({ "message": error });
+    }
 
 
 })
