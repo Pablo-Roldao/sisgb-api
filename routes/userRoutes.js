@@ -1,9 +1,11 @@
 const express = require("express");
 const router = require("express").Router();
 const User = require("../models/User");
+const Loan = require("../models/Loan");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
-const login = require("../middleware/login")
+const login = require("../middleware/login");
+const { find } = require("../models/User");
 
 
 
@@ -170,6 +172,11 @@ router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
         )
     }
 
+    const loansInBD = await Loan.find({"userCpf": cpf});
+    if (loansInBD[0]) {
+        return res.status(422).json({ "message": "User have an open loan!" });
+    }
+
     try {
         await User.deleteOne({ "cpf": cpf });
         res.status(200).json({ "message": "User deleted successfully!" });
@@ -192,7 +199,7 @@ router.post("/login", async (req, res) => {
         return res.status(422).json({ msg: "The login must containts a password!" });
     }
 
-    const userInBD = await User.findOne({ cpf: cpf });
+    const userInBD = await User.findOne({ "cpf": cpf });
 
     if (!userInBD) {
         return res.status(404).json({ "message": "User not found!" })
@@ -211,15 +218,14 @@ router.post("/login", async (req, res) => {
             {
                 id: userInBD._id,
                 cpf: userInBD.cpf
-
             },
             secret,
         );
 
-        res.status(200).json({ "message": "Autentificação realizada com Sucesso", token });
+        res.status(200).json({ "message": "Successuly authenticated. Token: ", token });
     } catch (error) {
-        console.log(err);
-        res.status(500).json({ "message": error });
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
 
 
