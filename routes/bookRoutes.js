@@ -1,6 +1,7 @@
 const express = require("express");
 const router = require("express").Router();
 const Book = require("../models/Book");
+const Loan = require("../models/Loan");
 
 router.use(
     express.urlencoded({
@@ -176,6 +177,10 @@ router.delete("/delete/:isbn", async (req, res) => {
                 "message": "The book with this ISBN was not found!"
             }
         )
+    }
+
+    if (bookInBD.state != "free") {
+        return res.status(422).json({ "message": "Book have an open loan!" });
     }
 
     try {

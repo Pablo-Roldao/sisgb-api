@@ -3,7 +3,6 @@ const router = require("express").Router();
 const Loan = require("../models/Loan");
 const User = require("../models/User");
 const Book = require("../models/Book");
-const loan = require("../models/Loan");
 
 router.use(
     express.urlencoded(
@@ -77,6 +76,20 @@ router.post("/register", async (req, res) => {
 
 });
 
+router.get("/get-by-id/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        const loan = await Loan.findById(id);
+        if (!loan) {
+            return res.status(422).json({ "message": "Loan not found!" });
+        }
+        res.status(200).json(loan);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+});
+
 router.get("/get-all", async (req, res) => {
     try {
         const loans = await Loan.find();
@@ -90,9 +103,46 @@ router.get("/get-all", async (req, res) => {
     }
 });
 
+router.post("/update/:id", async (req, res) => {
+    const id = req.params.id;
+    const { startDate, finishDate } = req.body;
+
+    if (!startDate) {
+        return res.status(422).json({ "message": "The loan must contains an start date!" });
+    }
+    if (!finishDate) {
+        return res.status(422).json({ "message": "The loan must contains a finish date!" });
+    }
+
+    const loanInBD = await Loan.findById(id);
+    if (!loanInBD) {
+        return res.status(422).json(
+            {
+                "message": "The loan with this id was not found!"
+            }
+        )
+    }
+
+    const newLoan = new Loan({
+        _id: loanInBD._id,
+        userCpf: loanInBD.userCpf,
+        bookIsbn: loanInBD.userCpf,
+        startDate,
+        finishDate
+    });
+
+    try {
+        await Loan.replaceOne({ "_id": id }, newLoan);
+        res.status(201).json({ "message": "Loan updated successfully!" })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+});
+
 router.delete("/delete/:id", async (req, res) => {
     const id = req.params.id;
-    const loanInBD = await Loan.findOne({ "_id": id });
+    const loanInBD = await Loan.findById(id);
     if (!loanInBD) {
         return res.status(422).json(
             {

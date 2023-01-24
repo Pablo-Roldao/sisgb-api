@@ -2,12 +2,6 @@ const express = require("express");
 const router = require("express").Router();
 const User = require("../models/User");
 const Loan = require("../models/Loan");
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt")
-const login = require("../middleware/login");
-const { find } = require("../models/User");
-
-
 
 router.use(
     express.urlencoded(
@@ -20,7 +14,7 @@ router.use(
     express.json()
 );
 
-router.post("/register", login.obrigatorio, async (req, res) => {
+router.post("/register", async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
 
     currentLoansQuantity = 0;
@@ -55,8 +49,6 @@ router.post("/register", login.obrigatorio, async (req, res) => {
             }
         );
     }
-    const salt = await bcrypt.genSalt(12)
-    const passwordHash = await bcrypt.hash(password, salt)
 
     const user = new User({
         name,
@@ -64,7 +56,7 @@ router.post("/register", login.obrigatorio, async (req, res) => {
         birthDate,
         addres,
         email,
-        password: passwordHash,
+        password,
         isFunctionary,
         currentLoansQuantity
     });
@@ -78,7 +70,7 @@ router.post("/register", login.obrigatorio, async (req, res) => {
     }
 });
 
-router.get("/get-by-cpf/:cpf", login.obrigatorio, async (req, res) => {
+router.get("/get-by-cpf/:cpf", async (req, res) => {
     const cpf = req.params.cpf;
     try {
         const user = await User.findOne({ "cpf": cpf });
@@ -92,7 +84,7 @@ router.get("/get-by-cpf/:cpf", login.obrigatorio, async (req, res) => {
     }
 });
 
-router.get("/get-all", login.opcional, async (req, res) => {
+router.get("/get-all", async (req, res) => {
     try {
         const users = await User.find();
         if (!users[0]) {
@@ -105,7 +97,7 @@ router.get("/get-all", login.opcional, async (req, res) => {
     }
 });
 
-router.post("/update/:cpf", login.obrigatorio, async (req, res) => {
+router.post("/update/:cpf", async (req, res) => {
     const oldCpf = req.params.cpf;
     const { name, cpf, birthDate, addres, email, password, isFunctionary, currentLoansQuantity } = req.body;
 
@@ -161,7 +153,7 @@ router.post("/update/:cpf", login.obrigatorio, async (req, res) => {
     }
 });
 
-router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
+router.delete("/delete/:cpf", async (req, res) => {
     const cpf = req.params.cpf;
     const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
@@ -172,7 +164,7 @@ router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
         )
     }
 
-    const loansInBD = await Loan.find({"userCpf": cpf});
+    const loansInBD = await Loan.find({ "userCpf": cpf });
     if (loansInBD[0]) {
         return res.status(422).json({ "message": "User have an open loan!" });
     }
@@ -185,51 +177,5 @@ router.delete("/delete/:cpf", login.obrigatorio, async (req, res) => {
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
 });
-
-
-router.post("/login", async (req, res) => {
-
-    const { cpf, password } = req.body;
-
-    if (!cpf) {
-        return res.status(422).json({ msg: "The login must contains a CPF!" });
-    }
-
-    if (!password) {
-        return res.status(422).json({ msg: "The login must containts a password!" });
-    }
-
-    const userInBD = await User.findOne({ "cpf": cpf });
-
-    if (!userInBD) {
-        return res.status(404).json({ "message": "User not found!" })
-    }
-
-    const checkPassword = bcrypt.compare(password, userInBD.password)
-
-    if (!checkPassword) {
-        return res.status(422).json({ "message": "Invalid password!" })
-    }
-
-    try {
-        const secret = process.env.SECRET
-
-        const token = jwt.sign(
-            {
-                id: userInBD._id,
-                cpf: userInBD.cpf
-            },
-            secret,
-        );
-
-        res.status(200).json({ "message": "Successuly authenticated. Token: ", token });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-
-
-})
-
 
 module.exports = router;
