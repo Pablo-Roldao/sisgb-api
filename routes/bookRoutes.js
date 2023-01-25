@@ -1,6 +1,7 @@
 const express = require("express");
 const router = require("express").Router();
 const Book = require("../models/Book");
+const ArchivedBook = require("../models/ArchivedBook");
 const Loan = require("../models/Loan");
 
 router.use(
@@ -172,19 +173,34 @@ router.delete("/delete/:isbn", async (req, res) => {
     const isbn = req.params.isbn;
     const bookInBD = await Book.findOne({ "isbn": isbn });
     if (!bookInBD) {
-        return res.status(422).json(
-            {
-                "message": "The book with this ISBN was not found!"
-            }
-        )
+        return res.status(422).json({ "message": "The book with this ISBN was not found!" });
     }
 
-    if (bookInBD.state != "free") {
-        return res.status(422).json({ "message": "Book have an open loan!" });
+    const loansInBd = await Loan.find({ "bookIsbn": isbn });
+    if (loansInBd[0]) {
+        return res.status(500).json({ "message": "The book has an open loan!" });
     }
+
+    const date = new Date();
+    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+    const bookForArchive = new ArchivedBook({
+        isbn: bookInBD.isbn,
+        title: bookInBD.title,
+        authors: bookInBD.authors,
+        numberOfPages: bookInBD.numberOfPages,
+        publisher: bookInBD.publisher,
+        publishDate: bookInBD.publishDate,
+        edition: bookInBD.edition,
+        genre: bookInBD.genre,
+        description: bookInBD.description,
+        state: bookInBD.state,
+        deletionDate: dateFormated
+    });
 
     try {
         await Book.deleteOne({ "isbn": isbn });
+        await ArchivedBook.create(bookForArchive);
         res.status(200).json({ "message": "Book deleted successfully!" });
     } catch (error) {
         console.log(error);

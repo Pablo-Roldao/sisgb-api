@@ -1,6 +1,7 @@
 const express = require("express");
 const router = require("express").Router();
 const User = require("../models/User");
+const ArchivedUser = require("../models/ArchivedUser");
 const Loan = require("../models/Loan");
 
 router.use(
@@ -169,8 +170,26 @@ router.delete("/delete/:cpf", async (req, res) => {
         return res.status(422).json({ "message": "User have an open loan!" });
     }
 
+    const date = new Date();
+    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+    const userForArchive = new ArchivedUser({
+        name: userInBD.name,
+        cpf: userInBD.cpf,
+        birthDate: userInBD.birthDate,
+        addres: userInBD.addres,
+        email: userInBD.email,
+        password: userInBD.password,
+        isFunctionary: userInBD.isFunctionary,
+        currentLoansQuantity: userInBD.currentLoansQuantity,
+        deletionDate: dateFormated
+    });
+
     try {
         await User.deleteOne({ "cpf": cpf });
+
+        await ArchivedUser.create(userForArchive);
+
         res.status(200).json({ "message": "User deleted successfully!" });
     } catch (error) {
         console.log(error);

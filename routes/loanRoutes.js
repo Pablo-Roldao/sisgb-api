@@ -1,6 +1,7 @@
 const express = require("express");
 const router = require("express").Router();
 const Loan = require("../models/Loan");
+const ArchivedLoan = require("../models/ArchivedLoan");
 const User = require("../models/User");
 const Book = require("../models/Book");
 
@@ -157,10 +158,22 @@ router.delete("/delete/:id", async (req, res) => {
     
     const userInBD = await User.findOne({"cpf": loanInBD.userCpf});
 
+    const date = new Date();
+    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+    const loanForArchive = new ArchivedLoan({
+        userCpf: loanInBD.userCpf,
+        bookIsbn: loanInBD.bookIsbn,
+        startDate: loanInBD.startDate,
+        finishDate: loanInBD.finishDate,
+        deletionDate: dateFormated
+    });
+
     try {
         await Loan.deleteOne({ "_id": id });
         bookInBD.state = "free";
 
+        await ArchivedLoan.create(loanForArchive);
 
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
