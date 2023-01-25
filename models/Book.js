@@ -16,7 +16,7 @@ const bookSchema = new mongoose.Schema(
     {
         versionKey: false
     }
-)
+);
 
 const book = mongoose.model("Book", bookSchema);
 

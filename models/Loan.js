@@ -5,7 +5,7 @@ const loanSchema = new mongoose.Schema(
         userCpf: String,
         bookIsbn: String,
         startDate: Date,
-        finishDate: Date
+        finishDate: Date,
     },
     {
         versionKey: false
