@@ -146,6 +146,15 @@ router.post("/update/:isbn", async (req, res) => {
         )
     }
 
+    const bookInBDNewIsbn = await Book.findOne({ "isbn": isbn });
+    if (bookInBDNewIsbn) {
+        return res.status(409).json(
+            {
+                "message": "The book with this ISBN already exists!"
+            }
+        )
+    }
+
     const newBook = new Book({
         _id: bookInBD._id,
         isbn,
