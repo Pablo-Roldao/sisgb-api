@@ -18,7 +18,7 @@ router.use(
 router.post("/register", async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
 
-    currentLoansQuantity = 0;
+    currentReservationsLoansQuantity = 0;
 
     if (name === undefined) {
         return res.status(422).json({ "message": "The user must contains a name!" });
@@ -59,7 +59,7 @@ router.post("/register", async (req, res) => {
         email,
         password,
         isFunctionary,
-        currentLoansQuantity
+        currentReservationsLoansQuantity
     });
 
     try {
@@ -100,7 +100,7 @@ router.get("/get-all", async (req, res) => {
 
 router.post("/update/:cpf", async (req, res) => {
     const oldCpf = req.params.cpf;
-    const { name, cpf, birthDate, addres, email, password, isFunctionary, currentLoansQuantity } = req.body;
+    const { name, cpf, birthDate, addres, email, password, isFunctionary, currentReservationsLoansQuantity } = req.body;
 
     if (!name) {
         return res.status(422).json({ "message": "The user must contains a name!" });
@@ -133,6 +133,15 @@ router.post("/update/:cpf", async (req, res) => {
         )
     }
 
+    const userInBDNewCpf = await User.findOne({ "cpf": cpf });
+    if (userInBDNewCpf) {
+        return res.status(409).json(
+            {
+                "message": "The user with this CPF already exists!"
+            }
+        )
+    }
+
     const newUser = new User({
         _id: userInBD._id,
         name,
@@ -142,7 +151,7 @@ router.post("/update/:cpf", async (req, res) => {
         email,
         password,
         isFunctionary,
-        currentLoansQuantity
+        currentReservationLoansQuantity: currentReservationsLoansQuantity
     });
 
     try {
@@ -181,7 +190,7 @@ router.delete("/delete/:cpf", async (req, res) => {
         email: userInBD.email,
         password: userInBD.password,
         isFunctionary: userInBD.isFunctionary,
-        currentLoansQuantity: userInBD.currentLoansQuantity,
+        currentReservationsLoansQuantity: userInBD.currentReservationsLoansQuantity,
         deletionDate: dateFormated
     });
 

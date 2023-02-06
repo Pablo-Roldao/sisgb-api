@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
         email: String,
         password: String,
         isFunctionary: Boolean,
-        currentLoansQuantity: Number
+        currentReservationsLoansQuantity: Number
     },
     {
         versionKey: false

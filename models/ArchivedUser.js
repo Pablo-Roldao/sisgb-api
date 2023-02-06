@@ -9,7 +9,7 @@ const archivedUserSchema = new mongoose.Schema(
         email: String,
         password: String,
         isFunctionary: Boolean,
-        currentLoansQuantity: Number,
+        currentReservationsLoansQuantity: Number,
         deletionDate: Date
     },
     {
