@@ -43,14 +43,14 @@ router.post("/register", async (req, res) => {
     }
 
     if (bookInBD.state === "loaned") {
-        return res.status(500).json({ "message": "Book loaned!" });
+        return res.status(500).json({ "message": "Book already loaned!" });
     }
     if (bookInBD.state === "reserved") {
         return res.status(500).json({ "message": "Book reserved!" });
     }
 
-    if (userInBD.currentLoansQuantity === 3) {
-        return res.status(500).json({ "message": "Current loans quantity fully!" });
+    if (userInBD.currentReservationsLoansQuantity === 3) {
+        return res.status(500).json({ "message": "Current loans/reservations quantity fully!" });
     }
 
     const loan = new Loan({
@@ -66,7 +66,7 @@ router.post("/register", async (req, res) => {
         bookInBD.state = "loaned";
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
-        userInBD.currentLoansQuantity = userInBD.currentLoansQuantity + 1;
+        userInBD.currentReservationsLoansQuantity = userInBD.currentReservationsLoansQuantity + 1;
         await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
 
         res.status(201).json({ "message": "Loan registered successfully!" })
@@ -127,7 +127,7 @@ router.post("/update/:id", async (req, res) => {
     const newLoan = new Loan({
         _id: loanInBD._id,
         userCpf: loanInBD.userCpf,
-        bookIsbn: loanInBD.userCpf,
+        bookIsbn: loanInBD.bookIsbn,
         startDate,
         finishDate
     });
@@ -177,7 +177,7 @@ router.delete("/delete/:id", async (req, res) => {
 
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
-        userInBD.currentLoansQuantity--;
+        userInBD.currentReservationsLoansQuantity--;
         await User.replaceOne({"cpf": userInBD.cpf}, userInBD);
 
         res.status(200).json({ "message": "Loan deleted successfully!" });

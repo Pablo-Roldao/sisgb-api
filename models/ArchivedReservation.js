@@ -4,8 +4,8 @@ const archivedReservationSchema = new mongoose.Schema(
     {
         userCpf: String,
         bookIsbn: String,
-        date: Date,
-        expirationDate: Date,
+        startDate: Date,
+        finishDate: Date,
         deletionDate: Date
     },
     {
