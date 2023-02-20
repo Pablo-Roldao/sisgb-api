@@ -1,8 +1,8 @@
 const express = require("express");
 const router = require("express").Router();
-const Book = require("../models/Book");
-const ArchivedBook = require("../models/ArchivedBook");
-const Loan = require("../models/Loan");
+const Book = require("./Book");
+const ArchivedBook = require("./ArchivedBook");
+const Loan = require("./Loan");
 
 router.use(
     express.urlencoded({
