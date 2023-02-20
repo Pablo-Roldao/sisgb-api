@@ -4,7 +4,7 @@
   "description": "An API for a library management system",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index localhost:3000"
+    "start": "node index.js"
   },
   "author": "Pablo Santos, Paulo Cardoso e Maria Pontes",
   "license": "ISC",

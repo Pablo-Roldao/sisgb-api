@@ -2,7 +2,7 @@
     "builds": [
         {
             "src": "index.js",
-            "user": "@now/node"
+            "user": "@vercel/node"
         }
     ],
     "routes": [
