@@ -27,14 +27,10 @@
   
   #wrapper {
     overflow-x: hidden;
-    background-image: linear-gradient(
-      to right,
-      #baf3d7,
-      #c2f5de,
-      #cbf7e4,
-      #d4f8ea,
-      #ddfaef
-    );
+    background-color:  #008374b0;
+    background-image: url("../img/patterner.png");
+   
+  
   }
   
   #sidebar-wrapper {
@@ -92,4 +88,19 @@
     #wrapper.toggled #sidebar-wrapper {
       margin-left: -15rem;
     }
+  }
+
+  .cardsd{
+    border-radius: 20px;
+    background-color:  #008374;
+    color: white;
+    box-shadow: 5px 5px 5px  rgba(0, 0, 0, 0.411);
+    
+  }
+
+  .recente {
+    border-radius: 20px;
+    font-weight: 500;
+
+    justify-content: center;
   }
