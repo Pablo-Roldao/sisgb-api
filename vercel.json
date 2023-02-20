@@ -1,8 +1,14 @@
 {
-    "redirects": [
+    "builds": [
         {
-            "source": "/about",
-            "destination": "/"
+            "src": "index.js",
+            "user": "@now/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "index.js"
         }
     ]
 }
