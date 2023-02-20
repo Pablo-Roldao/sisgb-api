@@ -20,13 +20,13 @@ app.get("/", (req, res) => {
     );
 });
 
-const bookRoutes = require("./api/bookRoutes");
+const bookRoutes = require("./api/routes/bookRoutes");
 app.use("/book", bookRoutes);
-const userRoutes = require("./api/userRoutes");
+const userRoutes = require("./api/routes/userRoutes");
 app.use("/user", userRoutes);
-const loanRoutes = require("./api/loanRoutes");
+const loanRoutes = require("./api/routes/loanRoutes");
 app.use("/loan", loanRoutes);
-const reservationRoutes = require("./api/reservationRoutes");
+const reservationRoutes = require("./api/routes/reservationRoutes");
 app.use("/reservation", reservationRoutes);
 
 mongoAtlasUri = process.env.MONGO_ATLAS_URI;

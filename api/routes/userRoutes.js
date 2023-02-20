@@ -1,8 +1,8 @@
 const express = require("express");
 const router = require("express").Router();
-const User = require("./User");
-const ArchivedUser = require("./ArchivedUser");
-const Loan = require("./Loan");
+const User = require("../models/User");
+const ArchivedUser = require("../models/ArchivedUser");
+const Loan = require("../models/Loan");
 
 router.use(
     express.urlencoded(
