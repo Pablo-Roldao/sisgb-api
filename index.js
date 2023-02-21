@@ -4,6 +4,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
+const cors = require('cors');
+
+app.use(
+    cors({origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://sisgb.vercel.app']})
+  );
 
 app.use(
     express.urlencoded({
