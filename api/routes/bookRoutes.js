@@ -12,7 +12,7 @@ router.use(
 router.use(express.json());
 
 router.post("/register", async (req, res) => {
-    const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description } = req.body;
+    const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc } = req.body;
 
     const state = "free";
 
@@ -43,6 +43,9 @@ router.post("/register", async (req, res) => {
     if (!description) {
         return res.status(422).json({ "message": "The book must contains a description!" });
     }
+    if (!imgSrc) {
+        return res.status(422).json({ "message": "The book must contains an image link!" });
+    }
 
     const bookInBD = await Book.findOne({ "isbn": isbn });
     if (bookInBD) {
@@ -63,6 +66,7 @@ router.post("/register", async (req, res) => {
         edition,
         genre,
         description,
+        imgSrc,
         state
     });
 
@@ -104,7 +108,7 @@ router.get("/get-all", async (req, res) => {
 
 router.post("/update/:isbn", async (req, res) => {
     const oldIsbn = req.params.isbn;
-    const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, state } = req.body;
+    const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc, state } = req.body;
 
     if (!isbn) {
         return res.status(422).json({ "message": "The book must contains an ISBN!" });
@@ -133,8 +137,11 @@ router.post("/update/:isbn", async (req, res) => {
     if (!description) {
         return res.status(422).json({ "message": "The book must contains a description!" });
     }
+    if (!imgSrc) {
+        return res.status(422).json({ "message": "The book must contains an image link!" });
+    }
     if (!state) {
-        return res.status(422).json({ "message": "The book must contains as state!" });
+        return res.status(422).json({ "message": "The book must contains an state!" });
     }
 
     const bookInBD = await Book.findOne({ "isbn": oldIsbn });
@@ -166,6 +173,7 @@ router.post("/update/:isbn", async (req, res) => {
         edition,
         genre,
         description,
+        imgSrc,
         state
     });
 
@@ -203,6 +211,7 @@ router.delete("/delete/:isbn", async (req, res) => {
         edition: bookInBD.edition,
         genre: bookInBD.genre,
         description: bookInBD.description,
+        imgSrc: bookInBD.imgSrc,
         state: bookInBD.state,
         deletionDate: dateFormated
     });

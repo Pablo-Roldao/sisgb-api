@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const cors = require('cors');
 
 app.use(
-    cors({ origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://sisgb.vercel.app'] })
+    cors()
 );
 
 app.use(
@@ -15,7 +15,7 @@ app.use(
         extended: true
     })
 );
-app.use(express.json());
+app.use(express.json()); ""
 
 app.get("/", (req, res) => {
     res.status(200).json(

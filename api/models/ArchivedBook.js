@@ -11,6 +11,7 @@ const archivedBookSchema = new mongoose.Schema(
         edition: String,
         genre: String,
         description: String,
+        imgSrc: String,
         state: String,
         deletionDate: Date
     },

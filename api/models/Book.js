@@ -9,8 +9,9 @@ const bookSchema = new mongoose.Schema(
         publisher: String,
         publishDate: Date,
         edition: String,
-        genre: String,
+        genre: [String],
         description: String,
+        imgSrc: String,
         state: String
     },
     {
