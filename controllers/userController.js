@@ -1,21 +1,8 @@
-const express = require("express");
-const router = require("express").Router();
-const User = require("../models/User");
-const ArchivedUser = require("../models/ArchivedUser");
-const Loan = require("../models/Loan");
+const User = require("../model/User");
+const ArchivedUser = require("../model/ArchivedUser");
+const Loan = require("../model/Loan");
 
-router.use(
-    express.urlencoded(
-        {
-            extended: true
-        }
-    )
-);
-router.use(
-    express.json()
-);
-
-router.post("/register", async (req, res) => {
+const register = async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
 
     currentReservationsLoansQuantity = 0;
@@ -69,9 +56,22 @@ router.post("/register", async (req, res) => {
         console.log(error);
         res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-by-cpf/:cpf", async (req, res) => {
+const getAll = async (req, res) => {
+    try {
+        const users = await User.find();
+        if (!users[0]) {
+            return res.status(422).json({ "message": "No users registered!" });
+        }
+        res.status(200).json(users);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+}
+
+const getByCpf = async (req, res) => {
     const cpf = req.params.cpf;
     try {
         const user = await User.findOne({ "cpf": cpf });
@@ -83,22 +83,9 @@ router.get("/get-by-cpf/:cpf", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-all", async (req, res) => {
-    try {
-        const users = await User.find();
-        if (!users[0]) {
-            return res.status(422).json({ "message": "No users registered!" });
-        }
-        res.status(200).json(users);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-});
-
-router.post("/update/:cpf", async (req, res) => {
+const update = async (req, res) => {
     const oldCpf = req.params.cpf;
     const { name, cpf, birthDate, addres, email, password, isFunctionary, currentReservationsLoansQuantity } = req.body;
 
@@ -161,9 +148,9 @@ router.post("/update/:cpf", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.delete("/delete/:cpf", async (req, res) => {
+const deleteByCpf = async (req, res) => {
     const cpf = req.params.cpf;
     const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
@@ -204,6 +191,12 @@ router.delete("/delete/:cpf", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-module.exports = router;
+module.exports = {
+    register,
+    getAll,
+    getByCpf,
+    update,
+    deleteByCpf
+}

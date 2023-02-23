@@ -1,17 +1,8 @@
-const express = require("express");
-const router = require("express").Router();
-const Book = require("../models/Book");
-const ArchivedBook = require("../models/ArchivedBook");
-const Loan = require("../models/Loan");
+const Book = require("../model/Book");
+const ArchivedBook = require("../model/ArchivedBook");
+const Loan = require("../model/Loan");
 
-router.use(
-    express.urlencoded({
-        extended: true
-    })
-);
-router.use(express.json());
-
-router.post("/register", async (req, res) => {
+const register = async (req, res) => {
     const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc } = req.body;
 
     const state = "free";
@@ -77,9 +68,9 @@ router.post("/register", async (req, res) => {
         console.log(error);
         res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-by-isbn/:isbn", async (req, res) => {
+const getByIsbn = async (req, res) => {
     const isbn = req.params.isbn;
     try {
         const book = await Book.findOne({ "isbn": isbn });
@@ -91,9 +82,9 @@ router.get("/get-by-isbn/:isbn", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-all", async (req, res) => {
+const getAll = async (req, res) => {
     try {
         const books = await Book.find();
         if (!books[0]) {
@@ -104,9 +95,9 @@ router.get("/get-all", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.post("/update/:isbn", async (req, res) => {
+const updateByIsbn = async (req, res) => {
     const oldIsbn = req.params.isbn;
     const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc, state } = req.body;
 
@@ -184,9 +175,9 @@ router.post("/update/:isbn", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.delete("/delete/:isbn", async (req, res) => {
+const deleteByIsbn = async (req, res) => {
     const isbn = req.params.isbn;
     const bookInBD = await Book.findOne({ "isbn": isbn });
     if (!bookInBD) {
@@ -224,6 +215,12 @@ router.delete("/delete/:isbn", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-module.exports = router;
+module.exports = {
+    register,
+    getByIsbn,
+    getAll,
+    updateByIsbn,
+    deleteByIsbn
+}

@@ -4,3 +4,7 @@
 20230223	14:40:35	20bc16c1-7698-4086-8cf3-8e956012b53c	GET	https://www.google.com	/
 20230223	14:40:47	1bf32592-31a4-49e3-9726-6dcaaa0556b5	OPTIONS	https://www.google.com	/
 20230223	14:40:47	23546d4e-5a7f-4cf6-8440-d558055eeb1a	GET	https://www.google.com	/
+20230223	16:15:33	1668d024-92ec-4a55-89f5-fb3ec745e1d1	GET	undefined	/
+20230223	16:15:33	db06d94c-7a99-4dba-b604-b746f6d50b68	GET	undefined	/favicon.ico
+20230223	16:15:39	eb23c4a3-46c4-4cc7-8268-4f5e18d50261	GET	undefined	/book/get-all
+20230223	16:16:26	16740caf-492a-4eb0-90ae-d38e2d14d04a	GET	undefined	/book/get-by-isbn/000-00-0000-000-4

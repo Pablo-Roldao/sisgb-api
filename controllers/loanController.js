@@ -1,22 +1,9 @@
-const express = require("express");
-const router = require("express").Router();
-const Loan = require("../models/Loan");
-const ArchivedLoan = require("../models/ArchivedLoan");
-const User = require("../models/User");
-const Book = require("../models/Book");
+const Loan = require("../model/Loan");
+const ArchivedLoan = require("../model/ArchivedLoan");
+const User = require("../model/User");
+const Book = require("../model/Book");
 
-router.use(
-    express.urlencoded(
-        {
-            extended: true
-        }
-    )
-);
-router.use(
-    express.json()
-);
-
-router.post("/register", async (req, res) => {
+const register = async (req, res) => {
     const { userCpf, bookIsbn, startDate, finishDate } = req.body;
 
     if (!userCpf) {
@@ -75,9 +62,22 @@ router.post("/register", async (req, res) => {
         res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
 
-});
+}
 
-router.get("/get-by-id/:id", async (req, res) => {
+const getAll = async (req, res) => {
+    try {
+        const loans = await Loan.find();
+        if (!loans[0]) {
+            return res.status(422).json({ "message": "No loans registered!" });
+        }
+        res.status(200).json(loans);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+}
+
+const getById = async (req, res) => {
     const id = req.params.id;
     try {
         const loan = await Loan.findById(id);
@@ -89,22 +89,9 @@ router.get("/get-by-id/:id", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-all", async (req, res) => {
-    try {
-        const loans = await Loan.find();
-        if (!loans[0]) {
-            return res.status(422).json({ "message": "No loans registered!" });
-        }
-        res.status(200).json(loans);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-});
-
-router.post("/update/:id", async (req, res) => {
+const updateById = async (req, res) => {
     const id = req.params.id;
     const { startDate, finishDate } = req.body;
 
@@ -139,9 +126,9 @@ router.post("/update/:id", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.delete("/delete/:id", async (req, res) => {
+const deleteById = async (req, res) => {
     const id = req.params.id;
     const loanInBD = await Loan.findById(id);
     if (!loanInBD) {
@@ -153,10 +140,10 @@ router.delete("/delete/:id", async (req, res) => {
     }
     console.log(loanInBD);
 
-    
+
     const bookInBD = await Book.findOne({ "isbn": loanInBD.bookIsbn });
-    
-    const userInBD = await User.findOne({"cpf": loanInBD.userCpf});
+
+    const userInBD = await User.findOne({ "cpf": loanInBD.userCpf });
 
     const date = new Date();
     const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -178,13 +165,19 @@ router.delete("/delete/:id", async (req, res) => {
         await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
 
         userInBD.currentReservationsLoansQuantity--;
-        await User.replaceOne({"cpf": userInBD.cpf}, userInBD);
+        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
 
         res.status(200).json({ "message": "Loan deleted successfully!" });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-module.exports = router;
+module.exports = {
+    register,
+    getAll,
+    getById,
+    updateById,
+    deleteById
+}

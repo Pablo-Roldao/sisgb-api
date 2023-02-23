@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require('cors');
+const corsOptions = require('./config/corsOptions');
 const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
 const dotenv = require("dotenv");
@@ -11,28 +12,10 @@ const port = process.env.PORT || 3000;
 
 app.use(logger);
 
-const whiteList = ['https://sisgb.vercel.app', 'http://127.0.0.1:3000', 'http://localhost:3000'];
-const corsOptions = {
-    origin: {
-        origin: (origin, callback) => {
-            if (whiteList.indexOf(origin) !== -1 || !origin) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        optionsSuccessStatus: 200
-    }
-}
 app.use(cors(corsOptions));
 
-
-app.use(
-    express.urlencoded({
-        extended: true
-    })
-);
-app.use(express.json()); ""
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.status(200).json(
@@ -42,10 +25,10 @@ app.get("/", (req, res) => {
     );
 });
 
-app.use("/book", require("./api/routes/bookRoutes"));
-app.use("/user", require("./api/routes/userRoutes"));
-app.use("/loan", require("./api/routes/loanRoutes"));
-app.use("/reservation", require("./api/routes/reservationRoutes"));
+app.use("/book", require("./routes/api/book"));
+app.use("/user", require("./routes/api/user"));
+app.use("/loan", require("./routes/api/loan"));
+app.use("/reservation", require("./routes/api/reservation"));
 
 app.all('*', (req, res) => {
     res.status(404);

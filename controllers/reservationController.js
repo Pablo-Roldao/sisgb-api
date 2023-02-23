@@ -1,22 +1,9 @@
-const express = require("express");
-const router = require("express").Router();
-const Reservation = require("../models/Reservation");
-const ArchivedReservation = require("../models/ArchivedReservation");
-const User = require("../models/User");
-const Book = require("../models/Book");
+const Reservation = require("../model/Reservation");
+const ArchivedReservation = require("../model/ArchivedReservation");
+const User = require("../model/User");
+const Book = require("../model/Book");
 
-router.use(
-    express.urlencoded(
-        {
-            extended: true
-        }
-    )
-);
-router.use(
-    express.json()
-);
-
-router.post("/register", async (req, res) => {
+const register = async (req, res) => {
     const { userCpf, bookIsbn, startDate, finishDate } = req.body;
 
     if (!userCpf) {
@@ -75,9 +62,22 @@ router.post("/register", async (req, res) => {
         res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
 
-});
+}
 
-router.get("/get-by-id/:id", async (req, res) => {
+const getAll = async (req, res) => {
+    try {
+        const reservations = await Reservation.find();
+        if (!reservations[0]) {
+            return res.status(422).json({ "message": "No reservations registered!" });
+        }
+        res.status(200).json(reservations);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+}
+
+const getById =  async (req, res) => {
     const id = req.params.id;
     try {
         const reservation = await Reservation.findById(id);
@@ -89,22 +89,9 @@ router.get("/get-by-id/:id", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.get("/get-all", async (req, res) => {
-    try {
-        const reservations = await Reservation.find();
-        if (!reservations[0]) {
-            return res.status(422).json({ "message": "No reservations registered!" });
-        }
-        res.status(200).json(reservations);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
-    }
-});
-
-router.post("/update/:id", async (req, res) => {
+const update = async (req, res) => {
     const id = req.params.id;
     const { startDate, finishDate } = req.body;
 
@@ -139,9 +126,9 @@ router.post("/update/:id", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-router.delete("/delete/:id", async (req, res) => {
+const deleteById = async (req, res) => {
     const id = req.params.id;
     const reservationInBD = await Reservation.findById(id);
     if (!reservationInBD) {
@@ -185,6 +172,12 @@ router.delete("/delete/:id", async (req, res) => {
         console.log(error);
         return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
     }
-});
+}
 
-module.exports = router;
+module.exports = {
+    register,
+    getAll,
+    getById,
+    update,
+    deleteById
+}
