@@ -1,14 +1,31 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv");
-dotenv.config();
-const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
 const cors = require('cors');
+const { logger } = require('./middleware/logEvents');
+const errorHandler = require('./middleware/errorHandler');
+const dotenv = require("dotenv");
+dotenv.config();
 
-app.use(
-    cors()
-);
+const port = process.env.PORT || 3000;
+
+app.use(logger);
+
+const whiteList = ['https://sisgb.vercel.app', 'http://127.0.0.1:3000', 'http://localhost:3000'];
+const corsOptions = {
+    origin: {
+        origin: (origin, callback) => {
+            if (whiteList.indexOf(origin) !== -1 || !origin) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        optionsSuccessStatus: 200
+    }
+}
+app.use(cors(corsOptions));
+
 
 app.use(
     express.urlencoded({
@@ -33,6 +50,17 @@ const loanRoutes = require("./api/routes/loanRoutes");
 app.use("/loan", loanRoutes);
 const reservationRoutes = require("./api/routes/reservationRoutes");
 app.use("/reservation", reservationRoutes);
+
+app.all('*', (req, res) => {
+    res.status(404);
+    if (req.accepts('json')) {
+        res.json({error: "404 Not Found"});
+    } else {
+        res.type('txt').send("404 Not Found");
+    }
+});
+
+app.use(errorHandler);
 
 mongoAtlasUri = process.env.MONGO_ATLAS_URI;
 
