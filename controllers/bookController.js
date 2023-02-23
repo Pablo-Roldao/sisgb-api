@@ -98,11 +98,9 @@ const getAll = async (req, res) => {
 }
 
 const updateByIsbn = async (req, res) => {
-    const oldIsbn = req.body.oldIsbn;
     const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc, state } = req.body;
 
-
-    if (!oldIsbn) {
+    if (!isbn) {
         return res.status(422).json({ "message": "The request must contains the old isbn!" });
     }
     if (!isbn) {
@@ -139,20 +137,11 @@ const updateByIsbn = async (req, res) => {
         return res.status(422).json({ "message": "The book must contains an state!" });
     }
 
-    const bookInBD = await Book.findOne({ "isbn": oldIsbn });
+    const bookInBD = await Book.findOne({ "isbn": isbn });
     if (!bookInBD) {
         return res.status(422).json(
             {
                 "message": "The book with this ISBN was not found!"
-            }
-        )
-    }
-
-    const bookInBDNewIsbn = await Book.findOne({ "isbn": isbn });
-    if (bookInBDNewIsbn) {
-        return res.status(409).json(
-            {
-                "message": "The book with this ISBN already exists!"
             }
         )
     }
@@ -173,7 +162,7 @@ const updateByIsbn = async (req, res) => {
     });
 
     try {
-        await Book.replaceOne({ "isbn": oldIsbn }, newBook);
+        await Book.replaceOne({ "isbn": isbn }, newBook);
         res.status(201).json({ "message": "Book updated successfully!" })
     } catch (error) {
         console.log(error);
