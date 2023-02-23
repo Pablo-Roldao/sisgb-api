@@ -40,7 +40,7 @@ const register = async (req, res) => {
 
     const bookInBD = await Book.findOne({ "isbn": isbn });
     if (bookInBD) {
-        return res.status(422).json(
+        return res.status(409).json(
             {
                 "message": "A book with this ISBN has already been registered."
             }
@@ -98,9 +98,13 @@ const getAll = async (req, res) => {
 }
 
 const updateByIsbn = async (req, res) => {
-    const oldIsbn = req.params.isbn;
+    const oldIsbn = req.body.oldIsbn;
     const { isbn, title, authors, numberOfPages, publisher, publishDate, edition, genre, description, imgSrc, state } = req.body;
 
+
+    if (!oldIsbn) {
+        return res.status(422).json({ "message": "The request must contains the old isbn!" });
+    }
     if (!isbn) {
         return res.status(422).json({ "message": "The book must contains an ISBN!" });
     }
@@ -178,7 +182,7 @@ const updateByIsbn = async (req, res) => {
 }
 
 const deleteByIsbn = async (req, res) => {
-    const isbn = req.params.isbn;
+    const isbn = req.body.isbn;
     const bookInBD = await Book.findOne({ "isbn": isbn });
     if (!bookInBD) {
         return res.status(422).json({ "message": "The book with this ISBN was not found!" });
