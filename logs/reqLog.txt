@@ -64,3 +64,5 @@
 20230223	19:23:15	7b0af894-f12e-4c7b-9638-d3f30b581e91	GET	undefined	/loan/get-all
 20230223	19:23:23	167fe4ef-e11e-4283-96f8-9468aef44b8a	GET	undefined	/loan/
 20230223	19:23:31	e9f92f8e-0a3f-44bf-96fb-822aaa6ee86a	GET	undefined	/loan/
+20230223	20:41:10	4d15136c-a006-4f48-a52d-51931b50399f	GET	undefined	/
+20230223	20:41:11	a817f31b-f711-44b4-afad-3df381f9c3f5	GET	undefined	/favicon.ico

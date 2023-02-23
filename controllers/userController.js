@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const ArchivedUser = require("../model/ArchivedUser");
 const Loan = require("../model/Loan");
+const bcrypt = require("bcrypt");
 
 const register = async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, isFunctionary } = req.body;
@@ -11,7 +12,7 @@ const register = async (req, res) => {
         return res.status(422).json({ "message": "The user must contains a name!" });
     }
     if (cpf === undefined) {
-        return res.status(422).json({ "message": "The user must contains a CPF!" });
+        return res.status(400).json({ "message": "The user must contains a CPF!" });
     }
     if (birthDate === undefined) {
         return res.status(422).json({ "message": "The user must contains a birth date!" });
@@ -23,20 +24,22 @@ const register = async (req, res) => {
         return res.status(422).json({ "message": "The user must contains an email!" });
     }
     if (password === undefined) {
-        return res.status(422).json({ "message": "The user must contains a password!" });
+        return res.status(400).json({ "message": "The user must contains a password!" });
     }
     if (isFunctionary === undefined) {
         return res.status(422).json({ "message": "The user must contains isFunctionary!" });
     }
 
-    const userInBD = await User.findOne({ "cpf": cpf });
-    if (userInBD) {
-        return res.status(422).json(
+    const duplicate = await User.findOne({ "cpf": cpf });
+    if (duplicate) {
+        return res.status(409).json(
             {
                 "message": "An user with this CPF has already been registered."
             }
         );
     }
+
+    const hashedPwd = await bcrypt.hash(password, 10);
 
     const user = new User({
         name,
@@ -44,7 +47,7 @@ const register = async (req, res) => {
         birthDate,
         addres,
         email,
-        password,
+        password: hashedPwd,
         isFunctionary,
         currentReservationsLoansQuantity
     });

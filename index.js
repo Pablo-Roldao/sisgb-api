@@ -17,14 +17,8 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.status(200).json(
-        {
-            "message": "Welcome to SisGB!"
-        }
-    );
-});
-
+app.use("/", require("./routes/root"));
+app.use("/auth", require("./routes/auth"));
 app.use("/book", require("./routes/api/book"));
 app.use("/user", require("./routes/api/user"));
 app.use("/loan", require("./routes/api/loan"));
