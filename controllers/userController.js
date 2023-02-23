@@ -86,7 +86,6 @@ const getByCpf = async (req, res) => {
 }
 
 const update = async (req, res) => {
-    const oldCpf = req.params.cpf;
     const { name, cpf, birthDate, addres, email, password, isFunctionary, currentReservationsLoansQuantity } = req.body;
 
     if (!name) {
@@ -111,20 +110,11 @@ const update = async (req, res) => {
         return res.status(422).json({ "message": "The user must contains isFunctionary!" });
     }
 
-    const userInBD = await User.findOne({ "cpf": oldCpf });
+    const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
         return res.status(422).json(
             {
                 "message": "The user with this CPF was not found!"
-            }
-        )
-    }
-
-    const userInBDNewCpf = await User.findOne({ "cpf": cpf });
-    if (userInBDNewCpf) {
-        return res.status(409).json(
-            {
-                "message": "The user with this CPF already exists!"
             }
         )
     }
@@ -142,7 +132,7 @@ const update = async (req, res) => {
     });
 
     try {
-        await User.replaceOne({ "cpf": oldCpf }, newUser);
+        await User.replaceOne({ "cpf": cpf }, newUser);
         res.status(201).json({ "message": "User updated successfully!" })
     } catch (error) {
         console.log(error);
@@ -151,7 +141,7 @@ const update = async (req, res) => {
 }
 
 const deleteByCpf = async (req, res) => {
-    const cpf = req.params.cpf;
+    const cpf = req.body.cpf;
     const userInBD = await User.findOne({ "cpf": cpf });
     if (!userInBD) {
         return res.status(422).json(
