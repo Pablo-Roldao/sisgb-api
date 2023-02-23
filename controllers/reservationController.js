@@ -129,7 +129,7 @@ const update = async (req, res) => {
 }
 
 const deleteById = async (req, res) => {
-    const id = req.params.id;
+    const id = req.body.id;
     const reservationInBD = await Reservation.findById(id);
     if (!reservationInBD) {
         return res.status(422).json(
@@ -139,7 +139,6 @@ const deleteById = async (req, res) => {
         )
     }
     console.log(reservationInBD);
-
 
     const bookInBD = await Book.findOne({ "isbn": reservationInBD.bookIsbn });
 
