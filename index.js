@@ -42,19 +42,15 @@ app.get("/", (req, res) => {
     );
 });
 
-const bookRoutes = require("./api/routes/bookRoutes");
-app.use("/book", bookRoutes);
-const userRoutes = require("./api/routes/userRoutes");
-app.use("/user", userRoutes);
-const loanRoutes = require("./api/routes/loanRoutes");
-app.use("/loan", loanRoutes);
-const reservationRoutes = require("./api/routes/reservationRoutes");
-app.use("/reservation", reservationRoutes);
+app.use("/book", require("./api/routes/bookRoutes"));
+app.use("/user", require("./api/routes/userRoutes"));
+app.use("/loan", require("./api/routes/loanRoutes"));
+app.use("/reservation", require("./api/routes/reservationRoutes"));
 
 app.all('*', (req, res) => {
     res.status(404);
     if (req.accepts('json')) {
-        res.json({error: "404 Not Found"});
+        res.json({ error: "404 Not Found" });
     } else {
         res.type('txt').send("404 Not Found");
     }
