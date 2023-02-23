@@ -129,7 +129,7 @@ const updateById = async (req, res) => {
 }
 
 const deleteById = async (req, res) => {
-    const id = req.params.id;
+    const id = req.body.id;
     const loanInBD = await Loan.findById(id);
     if (!loanInBD) {
         return res.status(422).json(

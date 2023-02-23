@@ -61,3 +61,6 @@
 20230223	19:21:02	f92d4c33-68d8-4bf8-8e0e-60caf5697de0	DELETE	undefined	/user/
 20230223	19:21:08	4276cd9e-8627-4d76-b0f6-15f38ddba9b3	DELETE	undefined	/user/
 20230223	19:21:12	33e5ee31-133b-49a0-b368-b5edec3b2a0e	GET	undefined	/user/789.258.684-97
+20230223	19:23:15	7b0af894-f12e-4c7b-9638-d3f30b581e91	GET	undefined	/loan/get-all
+20230223	19:23:23	167fe4ef-e11e-4283-96f8-9468aef44b8a	GET	undefined	/loan/
+20230223	19:23:31	e9f92f8e-0a3f-44bf-96fb-822aaa6ee86a	GET	undefined	/loan/
