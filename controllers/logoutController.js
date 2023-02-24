@@ -12,8 +12,8 @@ const handleLogout = async (req, res) => {
     }
 
     await CurrentUser.deleteOne({ "refreshToken": refreshToken });
-    
-    res.clearCookie('jwt', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 });
     res.sendStatus(204);
 }
 
