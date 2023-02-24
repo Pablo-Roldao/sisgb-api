@@ -8,10 +8,13 @@ const errorHandler = require('./middleware/errorHandler');
 const dotenv = require("dotenv");
 dotenv.config();
 const verifyJWT = require('./middleware/verifyJWT');
+const credentials = require("./middleware/credentials");
 
 const port = process.env.PORT || 3000;
 
 app.use(logger);
+
+app.use(credentials);
 
 app.use(cors(corsOptions));
 
