@@ -66,3 +66,8 @@
 20230223	19:23:31	e9f92f8e-0a3f-44bf-96fb-822aaa6ee86a	GET	undefined	/loan/
 20230223	20:41:10	4d15136c-a006-4f48-a52d-51931b50399f	GET	undefined	/
 20230223	20:41:11	a817f31b-f711-44b4-afad-3df381f9c3f5	GET	undefined	/favicon.ico
+20230223	21:00:22	3d665a93-5df1-43fd-a3ca-e7317d132d3f	POST	undefined	/auth
+20230223	21:01:28	a94f3d4a-ab02-4849-a980-699db61774fc	POST	undefined	/auth
+20230223	21:02:04	f755de52-e588-4650-8498-c1d551f9b70e	POST	undefined	/auth
+20230223	21:02:10	dc99b37c-b375-43d0-a3bb-03e5233c2e23	POST	undefined	/auth
+20230223	21:02:27	11490703-4182-4761-a68f-4a00aa6bf1fb	POST	undefined	/auth
