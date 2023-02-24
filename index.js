@@ -7,6 +7,7 @@ const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
 const dotenv = require("dotenv");
 dotenv.config();
+const verifyJWT = require('./middleware/verifyJWT');
 
 const port = process.env.PORT || 3000;
 
@@ -21,6 +22,8 @@ app.use("/", require("./routes/root"));
 app.use("/auth", require("./routes/auth"));
 app.use("/book", require("./routes/api/book"));
 app.use("/user", require("./routes/api/user"));
+
+app.use(verifyJWT);
 app.use("/loan", require("./routes/api/loan"));
 app.use("/reservation", require("./routes/api/reservation"));
 

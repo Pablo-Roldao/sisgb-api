@@ -15,6 +15,7 @@
   "dependencies": {
     "bcrypt": "^5.1.0",
     "bootstrap-icons": "^1.10.3",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
