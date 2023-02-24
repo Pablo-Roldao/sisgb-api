@@ -84,6 +84,20 @@ const getByIsbn = async (req, res) => {
     }
 }
 
+const getByGenre = async (req, res) => {
+    const genre = req.params.genre;
+    try {
+        const books = await Book.find({genre: genre});
+        if (!books) {
+            return res.status(422).json({ "message": "Book not found!" });
+        }
+        res.status(200).json(books);
+    } catch (error) {
+        console.log(error);
+        return res.status(404).json({ "message": "An unexpected error occurred, please try again later!" });
+    }
+}
+
 const getAll = async (req, res) => {
     try {
         const books = await Book.find();
@@ -213,6 +227,7 @@ const deleteByIsbn = async (req, res) => {
 module.exports = {
     register,
     getByIsbn,
+    getByGenre,
     getAll,
     updateByIsbn,
     deleteByIsbn

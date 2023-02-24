@@ -15,4 +15,7 @@ router.route('/')
 router.route('/:isbn')
     .get(bookController.getByIsbn);
 
+router.route('/get-by-genre/:genre')
+    .get(bookController.getByGenre);
+
 module.exports = router;
