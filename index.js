@@ -5,9 +5,8 @@ const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
-const dotenv = require("dotenv");
-dotenv.config();
 const verifyJWT = require('./middleware/verifyJWT');
+require('dotenv').config();
 
 const port = process.env.PORT || 3000;
 
@@ -18,6 +17,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//routes
 app.use("/", require("./routes/root"));
 
 app.use("/book", require("./routes/api/book"));
@@ -32,7 +32,7 @@ app.use("/loan", require("./routes/api/loan"));
 app.use("/reservation", require("./routes/api/reservation"));
 
 app.all('*', (req, res) => {
-    res.status(404);
+    res.sendStatus(404);
     if (req.accepts('json')) {
         res.json({ error: "404 Not Found" });
     } else {

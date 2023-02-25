@@ -156,3 +156,4 @@
 20230224	18:48:12	126c209f-13b0-43a9-abed-f79d16c21908	GET	undefined	/book/get-by-genre
 20230224	18:48:14	df6e063e-f058-4790-896e-bab95b7ed0f8	GET	undefined	/book/get-by-genre
 20230224	18:49:15	c476fa18-8e6d-423f-ace7-eb50b8e7453b	GET	undefined	/book/get-by-genre
+20230224	19:01:03	dde0ce96-7542-4e76-8865-637a0e1279ce	GET	undefined	/book/
