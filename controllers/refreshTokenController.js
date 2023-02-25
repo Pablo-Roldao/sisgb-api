@@ -17,8 +17,9 @@ const handleRefreshToken = (req, res) => {
         process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) => {
             if (err || foundUser.cpf != decoded.cpf) return res.sendStatus(403);
+            const roles = Object.values(foundUser.roles);
             const accessToken = jwt.sign(
-                { "cpf": decoded.cpf },
+                { "UserInfo": { "cpf": decoded.cpf, "roles": roles } },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '3600s' }
             );

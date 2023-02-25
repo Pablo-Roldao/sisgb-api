@@ -8,9 +8,9 @@ const userSchema = new mongoose.Schema(
         addres: String,
         email: String,
         password: String,
-        isFunctionary: Boolean,
         currentReservationsLoansQuantity: Number,
-        refreshToken: String
+        refreshToken: String,
+        roles: [Number]
     },
     {
         versionKey: false
