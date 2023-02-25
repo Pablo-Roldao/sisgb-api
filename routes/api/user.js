@@ -7,12 +7,12 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
 router.route('/')
-    .get(verifyJWT, userController.getAll)
+    .get(userController.getAll)
     .post(userController.register)
-    .put(verifyJWT, userController.update)
-    .delete(verifyJWT, userController.deleteByCpf);
+    .put(userController.update)
+    .delete(userController.deleteByCpf);
 
 router.route('/get-by-cpf')
-    .get(verifyJWT, userController.getByCpf);
+    .get(userController.getByCpf);
 
 module.exports = router;

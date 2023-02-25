@@ -171,3 +171,4 @@
 20230225	13:19:46	ed38f399-4705-4330-9918-c57ea37453fd	GET	undefined	/favicon.ico
 20230225	14:35:07	7cac4d5d-a7c0-454e-a6f5-a19df0d0469c	POST	undefined	/user/
 20230225	14:35:59	f3ee90f6-e35d-44d5-8d9c-c0c4cf1d9aa4	POST	undefined	/user/
+20230225	14:47:19	a2f29a01-b02e-4d93-a892-908b51946077	POST	undefined	/auth

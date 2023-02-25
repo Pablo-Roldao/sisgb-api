@@ -27,7 +27,7 @@ app.use("/auth", require("./routes/auth"));
 app.use("/refresh", require("./routes/refresh"));
 app.use("/logout", require("./routes/logout"));
 
-app.use(verifyJWT);
+//app.use(verifyJWT);
 app.use("/loan", require("./routes/api/loan"));
 app.use("/reservation", require("./routes/api/reservation"));
 
