@@ -52,7 +52,7 @@ const handleLogin = async (req, res) => {
             await User.replaceOne({ cpf: foundUser.cpf }, user);
 
             res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
-            res.json({ accessToken });
+            res.json({ accessToken, roles });
         } catch (error) {
             console.log(error);
             res.status(500).json({ "message": `Error: ${error}` });
