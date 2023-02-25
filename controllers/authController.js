@@ -17,7 +17,13 @@ const handleLogin = async (req, res) => {
     const match = await bcrypt.compare(password, foundUser.password);
     if (match) {
 
-        const roles = Object.values(foundUser.roles);
+        let roles = Object.values(foundUser.roles);
+        let rolesStr = '{';
+        for (let i = 0; i < roles.length; i++) {
+            rolesStr = rolesStr.concat(`"${roles[i].name}":${roles[i].code}${i === (roles.length - 1) ? '' : ','}`);
+        }
+        rolesStr = rolesStr.concat("}")
+        roles = JSON.parse(rolesStr);
 
         const accessToken = jwt.sign(
             { "UserInfo": { "cpf": foundUser.cpf, "roles": roles } },
@@ -37,9 +43,9 @@ const handleLogin = async (req, res) => {
             addres: foundUser.addres,
             email: foundUser.email,
             password: foundUser.password,
-            isFunctionary: foundUser.isFunctionary,
             currentReservationsLoansQuantity: foundUser.currentReservationsLoansQuantity,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            roles: foundUser.roles
         }
 
         try {
