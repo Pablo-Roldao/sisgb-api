@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema(
         password: String,
         currentReservationsLoansQuantity: Number,
         refreshToken: String,
-        roles: [Number]
+        roles: [mongoose.Schema({
+            name: String,
+            code: Number
+        })]
     },
     {
         versionKey: false
