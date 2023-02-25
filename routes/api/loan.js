@@ -8,10 +8,10 @@ router.use(express.json());
 router.route('/')
     .get(loanController.getAll)
     .post(loanController.register)
-    .put(loanController.updateById)
+    .put(loanController.update)
     .delete(loanController.deleteById);
 
-router.route("/:id")
+router.route("/get-by-id")
     .get(loanController.getById);
 
 module.exports = router;

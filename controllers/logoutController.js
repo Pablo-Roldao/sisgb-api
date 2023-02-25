@@ -1,20 +1,26 @@
-const CurrentUser = require('../model/CurrentUser');
+const User = require("../model/User");
 
 const handleLogout = async (req, res) => {
     const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(204);
     const refreshToken = cookies.jwt;
 
-    const foundUser = CurrentUser.findOne({ "refreshToken": refreshToken });
+    const foundUser = User.findOne({ "refreshToken": refreshToken });
     if (!foundUser) {
         res.clearCookie('jwt', { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
         return res.sendStatus(205);
     }
 
-    await CurrentUser.deleteOne({ "refreshToken": refreshToken });
+    foundUser.refreshToken = '';
 
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 });
-    res.sendStatus(204);
+    try {
+        await User.replaceOne({cpf: foundUser.cpf}, foundUser);
+
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 });
+        res.sendStatus(204);
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
+    }
 }
 
 module.exports = { handleLogout };

@@ -17,7 +17,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//routes
+
 app.use("/", require("./routes/root"));
 
 app.use("/book", require("./routes/api/book"));
@@ -31,14 +31,6 @@ app.use(verifyJWT);
 app.use("/loan", require("./routes/api/loan"));
 app.use("/reservation", require("./routes/api/reservation"));
 
-app.all('*', (req, res) => {
-    res.sendStatus(404);
-    if (req.accepts('json')) {
-        res.json({ error: "404 Not Found" });
-    } else {
-        res.type('txt').send("404 Not Found");
-    }
-});
 
 app.use(errorHandler);
 

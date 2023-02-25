@@ -12,7 +12,7 @@ router.route('/')
     .put(reservationController.update)
     .delete(reservationController.deleteById);
 
-router.route('/:id')
-.get(reservationController.getById);
+router.route('/get-by-id')
+    .get(reservationController.getById);
 
 module.exports = router;

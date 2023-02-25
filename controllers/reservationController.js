@@ -1,43 +1,34 @@
 const Reservation = require("../model/Reservation");
-const ArchivedReservation = require("../model/ArchivedReservation");
 const User = require("../model/User");
 const Book = require("../model/Book");
 
 const register = async (req, res) => {
     const { userCpf, bookIsbn, startDate, finishDate } = req.body;
 
-    if (!userCpf) {
-        return res.status(422).json({ "message": "The reservation must contains a CPF of an user!" });
-    }
-    if (!bookIsbn) {
-        return res.status(422).json({ "message": "The reservation must contains an ISBN of a book!" });
-    }
-    if (!startDate) {
-        return res.status(422).json({ "message": "The reservation must contains an start date!" });
-    }
-    if (!finishDate) {
-        return res.status(422).json({ "message": "The reservation must contains a finish date!" });
+    if (!userCpf) { return res.status(422).json({ "error": "The reservation must contains a CPF of an user!" }); }
+    if (!bookIsbn) { return res.status(422).json({ "error": "The reservation must contains an ISBN of a book!" }); }
+    if (!startDate) { return res.status(422).json({ "error": "The reservation must contains an start date!" }); }
+    if (!finishDate) { return res.status(422).json({ "error": "The reservation must contains a finish date!" }); }
+
+    const foundUser = await User.findOne({ "cpf": userCpf });
+    if (!foundUser) {
+        return res.status(404).json({ "error": "User not found!" });
     }
 
-    const userInBD = await User.findOne({ "cpf": userCpf });
-    if (!userInBD) {
-        return res.status(422).json({ "message": "User not found!" });
+    const foundBook = await Book.findOne({ "isbn": bookIsbn });
+    if (!foundBook) {
+        return res.status(404).json({ "error": "Book not found!" });
     }
 
-    const bookInBD = await Book.findOne({ "isbn": bookIsbn });
-    if (!bookInBD) {
-        return res.status(422).json({ "message": "Book not found!" });
+    if (foundBook.state === "loaned") {
+        return res.status(409).json({ "error": "Book loaned!" });
+    }
+    if (foundBook.state === "reserved") {
+        return res.status(409).json({ "error": "Book already reserved!" });
     }
 
-    if (bookInBD.state === "loaned") {
-        return res.status(500).json({ "message": "Book loaned!" });
-    }
-    if (bookInBD.state === "reserved") {
-        return res.status(500).json({ "message": "Book already reserved!" });
-    }
-
-    if (userInBD.currentReservationsLoansQuantity === 3) {
-        return res.status(500).json({ "message": "Current loans/reservations quantity fully!" });
+    if (foundUser.currentReservationsLoansQuantity === 3) {
+        return res.status(500).json({ "error": "Current loans/reservations quantity fully!" });
     }
 
     const reservation = new Reservation({
@@ -50,16 +41,15 @@ const register = async (req, res) => {
     try {
         await Reservation.create(reservation);
 
-        bookInBD.state = "reserved";
-        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+        foundBook.state = "reserved";
+        await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
 
-        userInBD.currentReservationsLoansQuantity = userInBD.currentReservationsLoansQuantity + 1;
-        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
+        foundUser.currentReservationsLoansQuantity++;
+        await User.replaceOne({ "cpf": foundUser.cpf }, foundUser);
 
-        res.status(201).json({ "message": "Reservation registered successfully!" })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        res.status(201).json({ "success": "Reservation registered successfully!" })
+    } catch (err) {
+        res.status(500).json({ "error": `Error: ${err}` });
     }
 
 }
@@ -68,108 +58,84 @@ const getAll = async (req, res) => {
     try {
         const reservations = await Reservation.find();
         if (!reservations[0]) {
-            return res.status(422).json({ "message": "No reservations registered!" });
+            return res.status(404).json({ "error": "No reservations registered!" });
         }
         res.status(200).json(reservations);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
-const getById =  async (req, res) => {
-    const id = req.params.id;
+const getById = async (req, res) => {
+    const id = req.body.id;
+    if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
+
     try {
         const reservation = await Reservation.findById(id);
         if (!reservation) {
-            return res.status(422).json({ "message": "Reservation not found!" });
+            return res.status(404).json({ "error": "Reservation not found!" });
         }
         res.status(200).json(reservation);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
 const update = async (req, res) => {
-    const id = req.params.id;
-    const { startDate, finishDate } = req.body;
+    const { id, startDate, finishDate } = req.body;
 
-    if (!startDate) {
-        return res.status(422).json({ "message": "The reservation must contains an start date!" });
-    }
-    if (!finishDate) {
-        return res.status(422).json({ "message": "The reservation must contains a finish date!" });
-    }
+    if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
+    if (!startDate) { return res.status(422).json({ "error": "The reservation must contains an start date!" }); }
+    if (!finishDate) { return res.status(422).json({ "error": "The reservation must contains a finish date!" }); }
 
-    const reservationInBD = await Reservation.findById(id);
-    if (!reservationInBD) {
-        return res.status(422).json(
-            {
-                "message": "The reservation with this id was not found!"
-            }
-        )
+    const foundReservation = await Reservation.findById(id);
+    if (!foundReservation) {
+        return res.status(404).json({ "error": "The reservation with this id was not found!" })
     }
 
-    const newReservation = new Reservation({
-        _id: reservationInBD._id,
-        userCpf: reservationInBD.userCpf,
-        bookIsbn: reservationInBD.bookIsbn,
+    const reservation = new Reservation({
+        userCpf: foundReservation.userCpf,
+        bookIsbn: foundReservation.bookIsbn,
         startDate,
         finishDate
     });
 
     try {
-        await Reservation.replaceOne({ "_id": id }, newReservation);
-        res.status(201).json({ "message": "Reservation updated successfully!" })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        await Reservation.replaceOne({ "_id": id }, reservation);
+        res.status(201).json({ "success": "Reservation updated successfully!" })
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
 const deleteById = async (req, res) => {
     const id = req.body.id;
-    const reservationInBD = await Reservation.findById(id);
-    if (!reservationInBD) {
-        return res.status(422).json(
-            {
-                "message": "The reservation with this id was not found!"
-            }
-        )
+    if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
+
+    const foundReservation = await Reservation.findById(id);
+    if (!foundReservation) {
+        return res.status(404).json({ "error": "The reservation with this id was not found!" })
     }
-    console.log(reservationInBD);
 
-    const bookInBD = await Book.findOne({ "isbn": reservationInBD.bookIsbn });
+    const foundBook = await Book.findOne({ "isbn": foundReservation.bookIsbn });
 
-    const userInBD = await User.findOne({ "cpf": reservationInBD.userCpf });
+    const foundUser = await User.findOne({ "cpf": foundReservation.userCpf });
 
-    const date = new Date();
-    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-
-    const reservationForArchive = new ArchivedReservation({
-        userCpf: reservationInBD.userCpf,
-        bookIsbn: reservationInBD.bookIsbn,
-        startDate: reservationInBD.startDate,
-        finishDate: reservationInBD.finishDate,
-        deletionDate: dateFormated
-    });
+    /*const date = new Date();
+    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;*/
 
     try {
         await Reservation.deleteOne({ "_id": id });
-        bookInBD.state = "free";
 
-        await ArchivedReservation.create(reservationForArchive);
+        foundBook.state = "free";
+        await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
 
-        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+        foundUser.currentReservationsLoansQuantity--;
+        await User.replaceOne({ "cpf": foundUser.cpf }, foundUser);
 
-        userInBD.currentReservationsLoansQuantity--;
-        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
-
-        res.status(200).json({ "message": "Reservation deleted successfully!" });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        res.status(200).json({ "success": "Reservation deleted successfully!" });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 

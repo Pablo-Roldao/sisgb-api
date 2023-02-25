@@ -9,13 +9,10 @@ router.use(express.json());
 router.route('/')
     .get(bookController.getAll)
     .post(verifyJWT, bookController.register)
-    .put(verifyJWT, bookController.updateByIsbn)
+    .put(verifyJWT, bookController.update)
     .delete(verifyJWT, bookController.deleteByIsbn);
 
-router.route('/:isbn')
+router.route('/get-by-isbn')
     .get(bookController.getByIsbn);
-
-router.route('/get-by-genre/:genre')
-    .get(bookController.getByGenre);
 
 module.exports = router;

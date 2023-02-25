@@ -12,7 +12,7 @@ router.route('/')
     .put(verifyJWT, userController.update)
     .delete(verifyJWT, userController.deleteByCpf);
 
-router.route('/:cpf')
+router.route('/get-by-cpf')
     .get(verifyJWT, userController.getByCpf);
 
 module.exports = router;

@@ -1,43 +1,35 @@
 const Loan = require("../model/Loan");
-const ArchivedLoan = require("../model/ArchivedLoan");
 const User = require("../model/User");
 const Book = require("../model/Book");
 
 const register = async (req, res) => {
     const { userCpf, bookIsbn, startDate, finishDate } = req.body;
 
-    if (!userCpf) {
-        return res.status(422).json({ "message": "The loan must contains a CPF of an user!" });
-    }
-    if (!bookIsbn) {
-        return res.status(422).json({ "message": "The loan must contains an ISBN of a book!" });
-    }
-    if (!startDate) {
-        return res.status(422).json({ "message": "The loan must contains an start date!" });
-    }
-    if (!finishDate) {
-        return res.status(422).json({ "message": "The loan must contains a finish date!" });
+    if (!userCpf) { return res.status(422).json({ "error": "The loan must contains a CPF of an user!" }); }
+    if (!bookIsbn) { return res.status(422).json({ "error": "The loan must contains an ISBN of a book!" }); }
+    if (!startDate) { return res.status(422).json({ "error": "The loan must contains an start date!" }); }
+    if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
+
+
+    const foundUser = await User.findOne({ "cpf": userCpf });
+    if (!foundUser) {
+        return res.status(404).json({ "error": "User not found!" });
     }
 
-    const userInBD = await User.findOne({ "cpf": userCpf });
-    if (!userInBD) {
-        return res.status(422).json({ "message": "User not found!" });
+    const foundBook = await Book.findOne({ "isbn": bookIsbn });
+    if (!foundBook) {
+        return res.status(404).json({ "error": "Book not found!" });
     }
 
-    const bookInBD = await Book.findOne({ "isbn": bookIsbn });
-    if (!bookInBD) {
-        return res.status(422).json({ "message": "Book not found!" });
+    if (foundBook.state === "loaned") {
+        return res.status(409).json({ "error": "Book already loaned!" });
+    }
+    if (foundBook.state === "reserved") {
+        return res.status(409).json({ "error": "Book reserved!" });
     }
 
-    if (bookInBD.state === "loaned") {
-        return res.status(500).json({ "message": "Book already loaned!" });
-    }
-    if (bookInBD.state === "reserved") {
-        return res.status(500).json({ "message": "Book reserved!" });
-    }
-
-    if (userInBD.currentReservationsLoansQuantity === 3) {
-        return res.status(500).json({ "message": "Current loans/reservations quantity fully!" });
+    if (foundUser.currentReservationsLoansQuantity === 3) {
+        return res.status(500).json({ "error": "Current loans/reservations quantity fully!" });
     }
 
     const loan = new Loan({
@@ -50,127 +42,100 @@ const register = async (req, res) => {
     try {
         await Loan.create(loan);
 
-        bookInBD.state = "loaned";
-        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+        foundBook.state = "loaned";
+        await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
 
-        userInBD.currentReservationsLoansQuantity = userInBD.currentReservationsLoansQuantity + 1;
-        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
+        foundUser.currentReservationsLoansQuantity++;
+        await User.replaceOne({ "cpf": foundUser.cpf }, foundUser);
 
-        res.status(201).json({ "message": "Loan registered successfully!" })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        res.status(201).json({ "success": "Loan registered successfully!" })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ "error": `Error: ${err}` });
     }
-
 }
 
 const getAll = async (req, res) => {
     try {
         const loans = await Loan.find();
         if (!loans[0]) {
-            return res.status(422).json({ "message": "No loans registered!" });
+            return res.status(404).json({ "error": "No loans registered!" });
         }
         res.status(200).json(loans);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
 const getById = async (req, res) => {
-    const id = req.params.id;
+    const id = req.body.id;
+    if (!id) { res.status(422).json({ "error": "The request must contains the loan's id!" }) }
     try {
         const loan = await Loan.findById(id);
         if (!loan) {
-            return res.status(422).json({ "message": "Loan not found!" });
+            return res.status(404).json({ "error": "Loan not found!" });
         }
         res.status(200).json(loan);
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
-const updateById = async (req, res) => {
-    const id = req.params.id;
-    const { startDate, finishDate } = req.body;
+const update = async (req, res) => {
+    const { id, startDate, finishDate } = req.body;
 
-    if (!startDate) {
-        return res.status(422).json({ "message": "The loan must contains an start date!" });
-    }
-    if (!finishDate) {
-        return res.status(422).json({ "message": "The loan must contains a finish date!" });
-    }
+    if (!id) { return res.status(422).json({ "error": "The request must contains the loan's id!" }); }
+    if (!startDate) { return res.status(422).json({ "error": "The loan must contains an start date!" }); }
+    if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
 
-    const loanInBD = await Loan.findById(id);
-    if (!loanInBD) {
-        return res.status(422).json(
-            {
-                "message": "The loan with this id was not found!"
-            }
-        )
+    const foundLoan = await Loan.findById(id);
+    if (!foundLoan) {
+        return res.status(404).json({ "error": "The loan with this id was not found!" });
     }
 
-    const newLoan = new Loan({
-        _id: loanInBD._id,
-        userCpf: loanInBD.userCpf,
-        bookIsbn: loanInBD.bookIsbn,
+    const loan = new Loan({
+        userCpf: foundLoan.userCpf,
+        bookIsbn: foundLoan.bookIsbn,
         startDate,
         finishDate
     });
 
     try {
-        await Loan.replaceOne({ "_id": id }, newLoan);
-        res.status(201).json({ "message": "Loan updated successfully!" })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        await Loan.replaceOne({ "_id": id }, loan);
+        res.status(201).json({ "success": "Loan updated successfully!" })
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
 const deleteById = async (req, res) => {
     const id = req.body.id;
-    const loanInBD = await Loan.findById(id);
-    if (!loanInBD) {
-        return res.status(422).json(
-            {
-                "message": "The loan with this id was not found!"
-            }
-        )
+    if (!id) { return res.status(422).json({ "error": "The request must contains the loan's id!" }); }
+
+    const foundLoan = await Loan.findById(id);
+    if (!foundLoan) {
+        return res.status(404).json({ "error": "The loan with this id was not found!" });
     }
-    console.log(loanInBD);
 
+    const foundBook = await Book.findOne({ "isbn": foundLoan.bookIsbn });
 
-    const bookInBD = await Book.findOne({ "isbn": loanInBD.bookIsbn });
+    const foundUser = await User.findOne({ "cpf": foundLoan.userCpf });
 
-    const userInBD = await User.findOne({ "cpf": loanInBD.userCpf });
-
-    const date = new Date();
-    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-
-    const loanForArchive = new ArchivedLoan({
-        userCpf: loanInBD.userCpf,
-        bookIsbn: loanInBD.bookIsbn,
-        startDate: loanInBD.startDate,
-        finishDate: loanInBD.finishDate,
-        deletionDate: dateFormated
-    });
+    /*const date = new Date();
+    const dateFormated = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;*/
 
     try {
         await Loan.deleteOne({ "_id": id });
-        bookInBD.state = "free";
 
-        await ArchivedLoan.create(loanForArchive);
+        foundBook.state = "free";
+        await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
 
-        await Book.replaceOne({ "isbn": bookInBD.isbn }, bookInBD);
+        foundUser.currentReservationsLoansQuantity--;
+        await User.replaceOne({ "cpf": foundUser.cpf }, foundUser);
 
-        userInBD.currentReservationsLoansQuantity--;
-        await User.replaceOne({ "cpf": userInBD.cpf }, userInBD);
-
-        res.status(200).json({ "message": "Loan deleted successfully!" });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ "message": "An unexpected error occurred, please try again later!" });
+        res.status(200).json({ "success": "Loan deleted successfully!" });
+    } catch (err) {
+        return res.status(500).json({"error": `Error: ${err}`});
     }
 }
 
@@ -178,6 +143,6 @@ module.exports = {
     register,
     getAll,
     getById,
-    updateById,
+    update,
     deleteById
 }

@@ -157,3 +157,15 @@
 20230224	18:48:14	df6e063e-f058-4790-896e-bab95b7ed0f8	GET	undefined	/book/get-by-genre
 20230224	18:49:15	c476fa18-8e6d-423f-ace7-eb50b8e7453b	GET	undefined	/book/get-by-genre
 20230224	19:01:03	dde0ce96-7542-4e76-8865-637a0e1279ce	GET	undefined	/book/
+20230225	13:19:28	41fc20b0-b0c6-4a6c-b275-53cf0028a361	GET	undefined	/
+20230225	13:19:29	6db81d00-7d68-4910-8c1d-4e8088bb6286	GET	undefined	/favicon.ico
+20230225	13:19:38	4f62c656-c0ba-48d5-8db0-3d502397fe85	GET	undefined	/
+20230225	13:19:38	6626acc4-6ff3-4398-a89f-8b5829305c76	GET	undefined	/favicon.ico
+20230225	13:19:38	9cd99ee6-7c01-4709-bd59-e18e3b05c0c2	GET	undefined	/
+20230225	13:19:38	2ce95cb4-3bca-4511-a96b-cb9c54f9eb81	GET	undefined	/favicon.ico
+20230225	13:19:39	997dc2a7-8fde-4c64-944f-4cf029d54377	GET	undefined	/
+20230225	13:19:39	f0dd1f7a-6355-4262-88cf-53bf3124a01b	GET	undefined	/favicon.ico
+20230225	13:19:42	a642bbcb-9be2-47be-93ac-8c5a3da9321a	GET	undefined	/
+20230225	13:19:42	d4545763-fd27-4546-be1b-2737f9cfee75	GET	undefined	/favicon.ico
+20230225	13:19:46	5e6827d6-bc05-4c24-8f1f-0b830c064be4	GET	undefined	/
+20230225	13:19:46	ed38f399-4705-4330-9918-c57ea37453fd	GET	undefined	/favicon.ico
