@@ -3,10 +3,11 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const handleRefreshToken = async (req, res) => {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(401);
-    const refreshToken = cookies.jwt;
-
+    /*const cookies = req.cookies;
+    console.log(cookies);
+    if (!cookies?.jwt) return res.sendStatus(401);*/
+    const refreshToken = req.body.refreshToken;
+    console.log(refreshToken);
     const foundUser = await User.findOne({ "refreshToken": refreshToken });
     if (!foundUser) {
         return res.status(404).json({"erorr": "User with this refreshToken not found!"});
