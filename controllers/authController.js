@@ -17,16 +17,21 @@ const handleLogin = async (req, res) => {
     const match = await bcrypt.compare(password, foundUser.password);
     if (match) {
 
-        let roles = Object.values(foundUser.roles);
+        /*let roles = Object.values(foundUser.roles);
         let rolesStr = '{';
         for (let i = 0; i < roles.length; i++) {
             rolesStr = rolesStr.concat(`"${roles[i].name}":${roles[i].code}${i === (roles.length - 1) ? '' : ','}`);
         }
         rolesStr = rolesStr.concat("}")
-        roles = JSON.parse(rolesStr);
+        roles = JSON.parse(rolesStr);*/
+        const rolesArrayObjects = Object.values(foundUser.roles);
+        const roles = [];
+        for (let i = 0; i < rolesArrayObjects.length; i++) {
+            roles.push(rolesArrayObjects[i].code);
+        }
 
         const accessToken = jwt.sign(
-            { "UserInfo": { "cpf": foundUser.cpf, "roles": roles } },
+            { "UserInfo": { "cpf": foundUser.cpf, "roles": rolesArrayObjects } },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '3600s' }
         );
@@ -52,7 +57,7 @@ const handleLogin = async (req, res) => {
             await User.replaceOne({ cpf: foundUser.cpf }, user);
 
             res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
-            res.json({ accessToken, roles });
+            res.json({ accessToken, roles});
         } catch (error) {
             console.log(error);
             res.status(500).json({ "message": `Error: ${error}` });
