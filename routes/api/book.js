@@ -8,9 +8,9 @@ router.use(express.json());
 
 router.route('/')
     .get(bookController.getAll)
-    .post(bookController.register)
-    .put(bookController.update)
-    .delete(bookController.deleteByIsbn);
+    .post(verifyJWT, bookController.register)
+    .put(verifyJWT, bookController.update)
+    .delete(verifyJWT, bookController.deleteByIsbn);
 
 router.route('/get-by-isbn')
     .get(bookController.getByIsbn);
