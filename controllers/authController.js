@@ -17,13 +17,6 @@ const handleLogin = async (req, res) => {
     const match = await bcrypt.compare(password, foundUser.password);
     if (match) {
 
-        /*let roles = Object.values(foundUser.roles);
-        let rolesStr = '{';
-        for (let i = 0; i < roles.length; i++) {
-            rolesStr = rolesStr.concat(`"${roles[i].name}":${roles[i].code}${i === (roles.length - 1) ? '' : ','}`);
-        }
-        rolesStr = rolesStr.concat("}")
-        roles = JSON.parse(rolesStr);*/
         const rolesArrayObjects = Object.values(foundUser.roles);
         const roles = [];
         for (let i = 0; i < rolesArrayObjects.length; i++) {
@@ -56,8 +49,8 @@ const handleLogin = async (req, res) => {
         try {
             await User.replaceOne({ cpf: foundUser.cpf }, user);
 
-            res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
-            res.json({ accessToken, roles});
+            res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 });
+            res.json({ accessToken, roles });
         } catch (error) {
             console.log(error);
             res.status(500).json({ "message": `Error: ${error}` });
