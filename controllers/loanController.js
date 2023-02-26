@@ -29,7 +29,7 @@ const register = async (req, res) => {
     }
 
     if (foundUser.currentReservationsLoansQuantity === 3) {
-        return res.status(500).json({ "error": "Current loans/reservations quantity fully!" });
+        return res.status(423).json({ "error": "Current loans/reservations quantity fully!" });
     }
 
     const loan = new Loan({
