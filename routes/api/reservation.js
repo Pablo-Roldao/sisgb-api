@@ -9,11 +9,13 @@ router.use(express.json());
 router.route('/')
     .get(reservationController.getAll)
     .post(reservationController.register)
-    .put(reservationController.update)
-    .delete(reservationController.deleteById);
+    .put(reservationController.update);
 
 router.route('/get-by-id')
     .get(reservationController.getById);
+
+router.route('/delete')
+    .post(reservationController.deleteById);
 
 router.route('/transform')
     .post(reservationController.tranformInLoan);

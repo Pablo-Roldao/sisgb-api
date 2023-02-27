@@ -73,28 +73,34 @@ const getByCpf = async (req, res) => {
 const update = async (req, res) => {
     const { name, cpf, birthDate, addres, email, password, roles, currentReservationsLoansQuantity } = req.body;
 
+console.log(currentReservationsLoansQuantity);
+
     if (!name) { return res.status(422).json({ "error": "The user must contains a name!" }); }
     if (!cpf) { return res.status(422).json({ "error": "The user must contains a CPF!" }); }
     if (!birthDate) { return res.status(422).json({ "error": "The user must contains a birth date!" }); }
     if (!addres) { return res.status(422).json({ "error": "The user must contains an adress!" }); }
     if (!email) { return res.status(422).json({ "error": "The user must contains an email!" }); }
-    if (!password) { return res.status(400).json({ "error": "The user must contains a password!" }); }
+    if (!password) { return res.status(422).json({ "error": "The user must contains a password!" }); }
     if (!roles) { return res.status(422).json({ "error": "The user must contains the roles!" }); }
+    if (currentReservationsLoansQuantity === undefined) { return res.status(422).json({ "error": "The user must contains the number of open reservations/loans!" }); }
 
     const foundUser = await User.findOne({ "cpf": cpf });
     if (!foundUser) {
         return res.status(404).json({ "error": "The user with this CPF was not found!" });
     }
 
+    const hashedPwd = await bcrypt.hash(password, 10);
+
     const user = new User({
-        name,
-        cpf,
-        birthDate,
-        addres,
-        email,
-        password,
-        currentReservationLoansQuantity,
-        roles
+        _id: foundUser._id,
+        "name": name,
+        "cpf": cpf,
+        "birthDate": birthDate,
+        "addres": addres,
+        "email": email,
+        "password": hashedPwd,
+        "roles": roles,
+        "currentReservationsLoansQuantity": currentReservationsLoansQuantity
     });
 
     try {

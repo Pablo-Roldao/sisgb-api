@@ -61,9 +61,9 @@ const register = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const loans = await Loan.find();
-        if (!loans[0]) {
+        /*if (!loans[0]) {
             return res.status(404).json({ "error": "No loans registered!" });
-        }
+        }*/
         res.status(200).json(loans);
     } catch (err) {
         return res.status(500).json({ "error": `Error: ${err}` });
@@ -96,9 +96,10 @@ const update = async (req, res) => {
     }
 
     const loan = new Loan({
+        _id: foundLoan._id,
         userCpf: foundLoan.userCpf,
         bookIsbn: foundLoan.bookIsbn,
-        startDate: getActualDate,
+        startDate: getActualDate(),
         finishDate
     });
 

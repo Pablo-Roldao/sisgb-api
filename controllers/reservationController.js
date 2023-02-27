@@ -1,6 +1,7 @@
 const Reservation = require("../model/Reservation");
 const User = require("../model/User");
 const Book = require("../model/Book");
+const Loan = require("../model/Loan");
 
 const getActualDate = () => {
     return (new Date().toISOString().split('T')[0]);
@@ -62,9 +63,9 @@ const register = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const reservations = await Reservation.find();
-        if (!reservations[0]) {
+        /*if (!reservations[0]) {
             return res.status(404).json({ "error": "No reservations registered!" });
-        }
+        }*/
         res.status(200).json(reservations);
     } catch (err) {
         return res.status(500).json({ "error": `Error: ${err}` });
@@ -164,7 +165,7 @@ const tranformInLoan = async (req, res) => {
 
     try {
         await Loan.create(loan);
-        const foundBook = await Book.findOne({ "isbn": bookIsbn });
+        const foundBook = await Book.findOne({ "isbn": foundReservation.bookIsbn });
         if (!foundBook) {
             return res.status(404).json({ "error": "Book not found!" });
         }

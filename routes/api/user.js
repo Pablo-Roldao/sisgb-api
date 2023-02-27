@@ -9,10 +9,12 @@ router.use(express.json());
 router.route('/')
     .get(verifyJWT, userController.getAll)
     .post(userController.register)
-    .put(verifyJWT, userController.update)
-    .delete(verifyJWT, userController.deleteByCpf);
+    .put(verifyJWT, userController.update);
 
 router.route('/get-by-cpf')
     .get(verifyJWT, userController.getByCpf);
+
+router.route('/delete')
+    .post(verifyJWT, userController.deleteByCpf);
 
 module.exports = router;
