@@ -2,12 +2,17 @@ const Reservation = require("../model/Reservation");
 const User = require("../model/User");
 const Book = require("../model/Book");
 
+const getActualDate = () => {
+    return (new Date().toISOString().split('T')[0]);
+}
+
 const register = async (req, res) => {
-    const { userCpf, bookIsbn, startDate, finishDate } = req.body;
+    const { userCpf, bookIsbn, finishDate } = req.body;
+
+    const startDate = getActualDate();
 
     if (!userCpf) { return res.status(422).json({ "error": "The reservation must contains a CPF of an user!" }); }
     if (!bookIsbn) { return res.status(422).json({ "error": "The reservation must contains an ISBN of a book!" }); }
-    if (!startDate) { return res.status(422).json({ "error": "The reservation must contains an start date!" }); }
     if (!finishDate) { return res.status(422).json({ "error": "The reservation must contains a finish date!" }); }
 
     const foundUser = await User.findOne({ "cpf": userCpf });
@@ -82,10 +87,9 @@ const getById = async (req, res) => {
 }
 
 const update = async (req, res) => {
-    const { id, startDate, finishDate } = req.body;
+    const { id, finishDate } = req.body;
 
     if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
-    if (!startDate) { return res.status(422).json({ "error": "The reservation must contains an start date!" }); }
     if (!finishDate) { return res.status(422).json({ "error": "The reservation must contains a finish date!" }); }
 
     const foundReservation = await Reservation.findById(id);
@@ -94,9 +98,10 @@ const update = async (req, res) => {
     }
 
     const reservation = new Reservation({
+        _id: id,
         userCpf: foundReservation.userCpf,
         bookIsbn: foundReservation.bookIsbn,
-        startDate,
+        startDate: foundReservation.startDate,
         finishDate
     });
 
@@ -139,10 +144,44 @@ const deleteById = async (req, res) => {
     }
 }
 
+const tranformInLoan = async (req, res) => {
+    const { id, finishDate } = req.body;
+
+    if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
+    if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
+
+    const foundReservation = await Reservation.findById(id);
+    if (!foundReservation) {
+        return res.status(404).json({ "error": "The reservation with this id was not found!" })
+    }
+
+    const loan = new Loan({
+        userCpf: foundReservation.userCpf,
+        bookIsbn: foundReservation.bookIsbn,
+        startDate: getActualDate(),
+        finishDate: finishDate
+    });
+
+    try {
+        await Loan.create(loan);
+        const foundBook = await Book.findOne({ "isbn": bookIsbn });
+        if (!foundBook) {
+            return res.status(404).json({ "error": "Book not found!" });
+        }
+        foundBook.state = "loaned";
+        await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
+        await Reservation.deleteOne({ "_id": id });
+    } catch (err) {
+        return res.status(500).json({ "error": `Error: ${err}` });
+    }
+
+}
+
 module.exports = {
     register,
     getAll,
     getById,
     update,
-    deleteById
+    deleteById,
+    tranformInLoan
 }

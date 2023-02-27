@@ -15,4 +15,7 @@ router.route('/')
 router.route('/get-by-id')
     .get(reservationController.getById);
 
+router.route('/transform')
+    .post(reservationController.tranformInLoan);
+
 module.exports = router;

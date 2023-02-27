@@ -2,12 +2,15 @@ const Loan = require("../model/Loan");
 const User = require("../model/User");
 const Book = require("../model/Book");
 
+const getActualDate = () => {
+    return (new Date().toISOString().split('T')[0]);
+}
+
 const register = async (req, res) => {
-    const { userCpf, bookIsbn, startDate, finishDate } = req.body;
+    const { userCpf, bookIsbn, finishDate } = req.body;
 
     if (!userCpf) { return res.status(422).json({ "error": "The loan must contains a CPF of an user!" }); }
     if (!bookIsbn) { return res.status(422).json({ "error": "The loan must contains an ISBN of a book!" }); }
-    if (!startDate) { return res.status(422).json({ "error": "The loan must contains an start date!" }); }
     if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
 
 
@@ -35,7 +38,7 @@ const register = async (req, res) => {
     const loan = new Loan({
         userCpf,
         bookIsbn,
-        startDate,
+        startDate: getActualDate(),
         finishDate
     });
 
@@ -82,10 +85,9 @@ const getById = async (req, res) => {
 }
 
 const update = async (req, res) => {
-    const { id, startDate, finishDate } = req.body;
+    const { id, finishDate } = req.body;
 
     if (!id) { return res.status(422).json({ "error": "The request must contains the loan's id!" }); }
-    if (!startDate) { return res.status(422).json({ "error": "The loan must contains an start date!" }); }
     if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
 
     const foundLoan = await Loan.findById(id);
@@ -96,7 +98,7 @@ const update = async (req, res) => {
     const loan = new Loan({
         userCpf: foundLoan.userCpf,
         bookIsbn: foundLoan.bookIsbn,
-        startDate,
+        startDate: getActualDate,
         finishDate
     });
 
