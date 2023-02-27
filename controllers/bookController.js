@@ -91,6 +91,7 @@ const update = async (req, res) => {
     }
 
     const book = new Book({
+        _id: foundBook._id,
         isbn,
         title,
         authors,
@@ -104,6 +105,8 @@ const update = async (req, res) => {
         state
     });
 
+    console.log(book);
+
     try {
         await Book.replaceOne({ "isbn": isbn }, book);
         res.status(201).json({ "success": "Book updated successfully!" })
@@ -115,6 +118,8 @@ const update = async (req, res) => {
 const deleteByIsbn = async (req, res) => {
     const isbn = req.body.isbn;
 
+    console.log(isbn);
+
     const foundBook = await Book.findOne({ "isbn": isbn });
     if (!foundBook) {
         return res.status(404).json({ "error": "The book with this ISBN was not found!" });
@@ -122,7 +127,7 @@ const deleteByIsbn = async (req, res) => {
 
     const foundLoans = await Loan.find({ "bookIsbn": isbn });
     if (foundLoans[0]) {
-        return res.status(500).json({ "error": "The book has an open loan!" });
+        return res.status(409).json({ "error": "The book has an open loan!" });
     }
 
     /*const date = new Date();
