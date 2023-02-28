@@ -47,9 +47,9 @@ const register = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const books = await Book.find();
-        if (!books[0]) {
+        /*if (!books[0]) {
             return res.status(404).json({ "error": "No books registered!" });
-        }
+        }*/
         res.status(200).json(books);
     } catch (err) {
         return res.status(500).json({ "error": `Error: ${err}` });

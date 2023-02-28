@@ -146,21 +146,26 @@ const deleteById = async (req, res) => {
 }
 
 const tranformInLoan = async (req, res) => {
-    const { id, finishDate } = req.body;
+    const { id } = req.body;
 
     if (!id) { return res.status(422).json({ "error": "The request must contains the reservation's id" }); }
-    if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
 
     const foundReservation = await Reservation.findById(id);
     if (!foundReservation) {
         return res.status(404).json({ "error": "The reservation with this id was not found!" })
     }
 
+    const { userCpf, bookIsbn } = foundReservation;
+
+    let finishDate = new Date();
+    finishDate.setDate(finishDate.getDate() + 7);
+    finishDate = finishDate.toISOString().split('T')[0];
+
     const loan = new Loan({
-        userCpf: foundReservation.userCpf,
-        bookIsbn: foundReservation.bookIsbn,
-        startDate: getActualDate(),
-        finishDate: finishDate
+        "userCpf": userCpf,
+        "bookIsbn": bookIsbn,
+        "startDate": getActualDate(),
+        "finishDate": finishDate
     });
 
     try {
@@ -172,6 +177,7 @@ const tranformInLoan = async (req, res) => {
         foundBook.state = "loaned";
         await Book.replaceOne({ "isbn": foundBook.isbn }, foundBook);
         await Reservation.deleteOne({ "_id": id });
+        res.status(201).json({ "success": "Reservation transformed successfully!" })
     } catch (err) {
         return res.status(500).json({ "error": `Error: ${err}` });
     }
