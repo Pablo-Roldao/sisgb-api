@@ -8,13 +8,12 @@ const getActualDate = () => {
 }
 
 const register = async (req, res) => {
-    const { userCpf, bookIsbn, finishDate } = req.body;
+    const { userCpf, bookIsbn } = req.body;
 
     const startDate = getActualDate();
 
     if (!userCpf) { return res.status(422).json({ "error": "The reservation must contains a CPF of an user!" }); }
     if (!bookIsbn) { return res.status(422).json({ "error": "The reservation must contains an ISBN of a book!" }); }
-    if (!finishDate) { return res.status(422).json({ "error": "The reservation must contains a finish date!" }); }
 
     const foundUser = await User.findOne({ "cpf": userCpf });
     if (!foundUser) {
@@ -36,6 +35,10 @@ const register = async (req, res) => {
     if (foundUser.currentReservationsLoansQuantity === 3) {
         return res.status(500).json({ "error": "Current loans/reservations quantity fully!" });
     }
+
+    let finishDate = new Date();
+    finishDate.setDate(finishDate.getDate() + 7);
+    finishDate = finishDate.toISOString().split('T')[0];
 
     const reservation = new Reservation({
         userCpf,
