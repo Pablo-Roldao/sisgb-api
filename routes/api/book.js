@@ -12,7 +12,7 @@ router.route('/')
     .put(verifyJWT, bookController.update);
 
 router.route('/get-by-isbn')
-    .get(bookController.getByIsbn);
+    .post(bookController.getByIsbn);
 
 router.route('/delete')
     .post(verifyJWT, bookController.deleteByIsbn);
