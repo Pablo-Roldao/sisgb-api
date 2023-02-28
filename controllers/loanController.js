@@ -7,12 +7,10 @@ const getActualDate = () => {
 }
 
 const register = async (req, res) => {
-    const { userCpf, bookIsbn, finishDate } = req.body;
+    const { userCpf, bookIsbn } = req.body;
 
     if (!userCpf) { return res.status(422).json({ "error": "The loan must contains a CPF of an user!" }); }
     if (!bookIsbn) { return res.status(422).json({ "error": "The loan must contains an ISBN of a book!" }); }
-    if (!finishDate) { return res.status(422).json({ "error": "The loan must contains a finish date!" }); }
-
 
     const foundUser = await User.findOne({ "cpf": userCpf });
     if (!foundUser) {
@@ -34,6 +32,10 @@ const register = async (req, res) => {
     if (foundUser.currentReservationsLoansQuantity === 3) {
         return res.status(423).json({ "error": "Current loans/reservations quantity fully!" });
     }
+
+    let finishDate = new Date();
+    finishDate.setDate(finishDate.getDate() + 7);
+    finishDate = finishDate.toISOString().split('T')[0];
 
     const loan = new Loan({
         userCpf,
@@ -138,7 +140,7 @@ const deleteById = async (req, res) => {
 
         res.status(200).json({ "success": "Loan deleted successfully!" });
     } catch (err) {
-        return res.status(500).json({"error": `Error: ${err}`});
+        return res.status(500).json({ "error": `Error: ${err}` });
     }
 }
 
