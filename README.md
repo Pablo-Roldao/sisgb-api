@@ -1,3 +1,3 @@
 # sisgb-api
 
-API do Sistema Gerenciador de Bibliotecas feita com Espress e MongoDB.
+API do Sistema Gerenciador de Bibliotecas feita com Express e MongoDB.
